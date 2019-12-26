@@ -34,9 +34,10 @@
 \newcommand{\myTime}{Anno Accademico 2018-2019 (spero)\xspace}
 \newcommand{\myVersion}{Version 0.1\xspace}
 %--------------------------------------------------------------
-
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\PassOptionsToPackage{pdftex}{graphicx}
 \usepackage[italian]{babel}
-\usepackage[latin1]{inputenc} 
+\usepackage[utf8]{inputenc} 
 \usepackage[T1]{fontenc} 
 \usepackage[square,numbers]{natbib} 
 \usepackage[fleqn]{amsmath}  
@@ -47,7 +48,8 @@
 \usepackage{appendix}
 \usepackage{siunitx}
 \usepackage{url}
-
+\usepackage{epigraph}
+\usepackage{amsthm}
 %--------------------------------------------------------------
 \usepackage{dia-classicthesis-ldpkg}
 %--------------------------------------------------------------
@@ -81,44 +83,27 @@ parts]{classicthesis}
 }
 
 
-
-
-%%
-%% Julia definition (c) 2014 Jubobs
-%%
-\lstdefinelanguage{Julia}%
-  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
-      end,export,false,for,function,immutable,import,importall,if,in,%
-      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
-      using,while},%
-   sensitive=true,%
-   alsoother={},%
-   morecomment=[l]\#,%
-   morecomment=[n]{\#=}{=\#},%
-   morestring=[s]{"}{"},%
-   morestring=[m]{'}{'},%
-}[keywords,comments,strings]%
-
-\lstset{%
-    language         = Julia,
-    basicstyle       = \ttfamily,
-    keywordstyle     = \bfseries\color{blue},
-    stringstyle      = \color{magenta},
-    commentstyle     = \color{ForestGreen},
-    showstringspaces = false,
-}
-%%%
-
 \usepackage{tikz}
 \usetikzlibrary{arrows}
 \usetikzlibrary{positioning}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{fit}
+\usetikzlibrary{calc}
 \tikzset{main node/.style={circle,fill=blue!20,draw,minimum size=1cm,inner sep=0pt},
             }
 
-
-
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+1 with {\arrow[semithick]{open triangle 60}}},
+double distance=1.4pt, shorten >= 5.5pt,
+preaction = {decorate},
+postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+\theoremstyle{definition}
+\newtheorem{definition}{Definizione}[section]
 %--------------------------------------------------------------
 \begin{document}
+\definecolor{c338dd8}{RGB}{51,141,216}
+\definecolor{cdf672a}{RGB}{223,103,42}
+\definecolor{cc1433c}{RGB}{193,67,60}
 \frenchspacing
 \raggedbottom
 \pagenumbering{roman}
@@ -145,10 +130,17 @@ parts]{classicthesis}
 \tableofcontents
 \listoftables
 \listoffigures
+\include{Chapters/Intro}
 \include{Chapters/Chapter1}
+\include{Chapters/Esperimenti}
 
+%-----------------GLOSSARIO ED ACRONIMI------------------------
+\include{acronyms}
 
+%-----------------BIBLIOGRAFIA---------------------------------
 
+\bibliography{bibliography}
+\bibliographystyle{unsrt}
 
 
 
