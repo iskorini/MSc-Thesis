@@ -38,9 +38,15 @@ Per dividere tra \textit{train set} e \textit{test set} è stato usato un criter
 \begin{itemize}
     \item Attributo di scala: per ogni \ac{BB} è associato un valore di scala. Questo valore dipende dalla distanza che ha il pedone dall'automobile, ed è giustificato dalla seguente affermazione. Supponendo che una vettura in area urbana viaggia ad una velocità compresa tra $30$ e $50$ km/h lo spazio di arresto varia tra gli $11$ ed i $28$ metri. Questo intervallo, scalato opportunamente rispetto alla risoluzione dell'immagine, e considerando anche che l'altezza media di un pedone è di $1.7$ metri corrisponde ad un range che va da $45$ a $115$ pixel. All'interno di questo range vengono definite \textit{medium}, al di sopra \textit{far} ed al di sotto \textit{near}.
     \item Occlusione: questo attributo associa ad ogni \ac{BB} un valore che rappresenta l'occlusione del pedone. I valori possibili sono \textit{no occlusion}, \textit{partial occlusion}, \textit{heavy occlusion}. I primi sono circa il $78.6\%$, i secondi circa il $12.6\%$ e gli ultimi $8.8\%$.
-    \item Posizione: l'impostazione dell'hardware rispecchia il più possibile quello di un essere umano, motivo per cui questo particolare setup concentra il rilevamento di pedoni nell'area centrale dell'immagine, in particolare nel lato destro. Questo è motivato dal fatto che nel paese dove sono stati acquisiti questi dati la guida è sulla destra. In figura \textbf{INSERIRE FIGURA} è possibile vedere questo fenomeno.
+    \item Posizione: l'impostazione dell'hardware rispecchia il più possibile quello di un essere umano, motivo per cui questo particolare setup concentra il rilevamento di pedoni nell'area centrale dell'immagine, in particolare nel lato destro. Questo è motivato dal fatto che nel paese dove sono stati acquisiti questi dati la guida è sulla destra. In Figura \ref{fig:heatmap} è possibile vedere questo fenomeno.
     \item Cambio d'aspetto: l'aspetto dei pedoni all'interno del dataset è molto variabile. In condizioni di pieno sole i pedoni sono ben visibili e con dei contorni ben definiti, mentre la differenza di temperatura tra l'ambiente circostante ed il pedone è meno marcata. Quindi nello spettro a colori sono presenti pedoni ben definiti, mentre nel termico no. Di notte invece, per via delle temperature ambientali più basse e per l'assenza di luce si verifica il contrario. In figura \textbf{INSERIRE FIGURA} è presente un esempio.
 \end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/graphic/heatmap.pdf}
+    \caption{Heatmap riguardante la posizione dei pedoni}
+    \label{fig:heatmap}
+\end{figure}
 \subsection{FLIR Thermal Starter Dataset}
 \label{subsec:flirdataset}
 Come già accennato in precedenza la documentazione riguardante questo dataset è molto stringata, limitandosi dunque ad una sola \href{https://www.flir.com/oem/adas/adas-dataset-form/}{pagina web} molto riassuntiva. Cercheremo in questa sezione di parlare degli aspetti che caratterizzano questo dataset.
