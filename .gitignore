@@ -12,7 +12,7 @@
 *.cb
 *.cb2
 .*.lb
-
+*wandb*
 ## Intermediate documents:
 *.dvi
 *.xdv

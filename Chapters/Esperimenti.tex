@@ -171,13 +171,14 @@ In Tabella \ref{table:TransferLearning} sono riassunte tutte le caratteristiche 
     \label{table:TransferLearning}
 \end{table}
 \subsection{Addestramento sulle immagini RGB}
+\label{subsec:first_training_rgb_kaist}
 Per il primo esperimento è stato deciso di effettuare un training di \textit{RetinaNet} partendo dai pesi della rete precedentemente addestrata sul dataset di \href{http://cocodataset.org/}{COCO}. Il dataset utilizzato è \ac{kmpd}, descritto precedentemente in \ref{subsec:kmpd}. Il motivo è legato al fatto che è l'unico dataset a nostra disposizione a disporre di annotazioni sulle immagini RGB.
 
 Questa prima fase di addestramento è durata circa $40$ ore, e come si può vedere dal grafico in Figura \ref{fig:fine_tuning_1} è proceduta senza particolari problemi fino ad arrivare a convergenza intorno all'epoca 45. Le classi usate per l'addestramento sono solamente \textit{person} e \textit{cyclist}. È stato deciso di non prendere in considerazioni le rimanenti classi in quanto sono persone non ben distinguibili. Tutti gli esperimenti sono stati eseguiti su una macchina remota dotata di una \ac{gpu} \href{https://www.geforce.com/hardware/desktop-gpus/geforce-gtx-titan-x}{Nvidia Titan X}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{images/graphic/ruby-yogurt.png}
+    \includegraphics[width=\textwidth]{images/graphic/ruby-yogurt.pdf}
     \caption{Transfer learning da COCO a KAIST}
     \label{fig:fine_tuning_1}
 \end{figure}
@@ -261,4 +262,49 @@ La valutazione è stata anche effettuata in maniera separata sia sulla parte di 
 
 
 Il successivo step della valutazione è stato effettuato su più classi, per questa comparazione delle performance è stata presa in considerazione anche la classe \textit{people}, ma rinominandola in \textit{person} in maniera tale da farla digerire \textbf{rivedere questo periodo} alla rete già addestrata.
-\textbf{INSERIRE VALUTAZIONE EFFETTUATA CON TUTTE LE CLASSI}
+\textbf{INSERIRE VALUTAZIONE EFFETTUATA CON TUTTE LE CLASSI, APPENA LE GPU SI LIBERANO. I PESI SONO QUELLI DELLA RUN RUBY-YOGURT}
+\subsection{Passaggio alle immagini termiche su KAIST}
+Dopo la fase di addestramento descritta in Sezione \ref{subsec:first_training_rgb_kaist} è stato effettuato il passaggio all'addestramento sulle immagini termiche del dataset di \ac{kmpd}. La base di partenza per questa fase di \textit{training} sono i pesi derivanti dall'addestramento effettuato in Sezione \ref{subsec:first_training_rgb_kaist}, è quindi stata attuata una tecnica di \textit{Transfer Learning} (\ref{subsec:transfer_learning}) in maniera da ridurre i tempi di addestramento. In questo caso, operando su due tipologie di immagini differenti cambia il dominio, più in particolare lo spazio delle feature. La distribuzione di probabilità sulle varie immagini resta la medesima in quanto il training è svolto sulle stesse immagini, come rimane invariato anche il task, ovvero il riconoscimento di pedoni e ciclisti.
+La fase di apprendimento è proceduta senza particolari intoppi, come si può vedere in Figura \ref{fig:fine_tuning_2} le varie loss scendono in maniera stabile e controllata. In maniera del tutto similare a quanto si può vedere in Figura \ref{fig:fine_tuning_1}.
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/graphic/ruby-yogurt-lwir.pdf}
+    \caption{Transfer learning da COCO a KAIST}
+    \label{fig:fine_tuning_2}
+\end{figure} 
+\begin{table}[]
+    \centering
+    \begin{tabular}{|c|c|c|}
+    \hline
+                & $\#$ Istanze & mAP    \\ \hline
+    Person      & 53443             & 0.3663 \\ \hline
+    Cyclist     & 1396              & 0.0392 \\ \hline
+    Complessivo & 54839             & 0.3580 \\ \hline
+    \end{tabular}
+    \caption{Test complessivo delle performance dopo l'addestramento}
+    \label{table:first_test_lwir_kaist}
+\end{table}
+
+\begin{table}[]
+    \centering
+    \subfloat[Giorno\label{table:separate_test_day}]{
+        \begin{tabular}{|c|c|c|}
+        \hline
+                    & $\#$ Istanze & mAP    \\ \hline
+        Person      & 38802             & 0.3415 \\ \hline
+        Cyclist     & 818               & 0.2015 \\ \hline
+        Complessivo & 39620             & 0.3353 \\ \hline
+        \end{tabular}
+    }
+    \subfloat[Notte\label{table:separate_test_night}]{
+        \begin{tabular}{|c|c|c|}
+        \hline
+                    & $\#$ Istanze & mAP    \\ \hline
+        Person      & 14641             & 0.4440 \\ \hline
+        Cyclist     & 578               & 0.0029 \\ \hline
+        Complessivo & 15219             & 0.4288 \\ \hline
+        \end{tabular}
+    }
+    \caption{Risultati della valutazione separata}
+    \label{table:separate_test_lwir_kaist}
+\end{table}
