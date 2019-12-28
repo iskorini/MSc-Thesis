@@ -17,11 +17,8 @@ ax = plt.gca()
 ax.set_aspect(20)
 
 metrics_dataframe.plot(x='epoch', y=['classification_loss', 'regression_loss', 'loss'], ax = ax)
-#metrics_dataframe.plot(x='epoch', y='classification_loss', ax=ax, color = 'steelblue')
-#metrics_dataframe.plot(x='epoch', y='regression_loss', ax=ax, color = 'darkorange')
-#metrics_dataframe.plot(x='epoch', y='loss', ax=ax, color = 'red')
 plt.legend(ncol=1, loc='upper right');
-ax.yaxis.grid(True) # Hide the horizontal gridlines
+ax.yaxis.grid(True) 
 ax.xaxis.grid(False)
 ax.margins()
 ax.set_ylim(bottom=0)

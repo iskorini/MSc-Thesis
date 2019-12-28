@@ -266,12 +266,14 @@ Il successivo step della valutazione è stato effettuato su più classi, per que
 \subsection{Passaggio alle immagini termiche su KAIST}
 Dopo la fase di addestramento descritta in Sezione \ref{subsec:first_training_rgb_kaist} è stato effettuato il passaggio all'addestramento sulle immagini termiche del dataset di \ac{kmpd}. La base di partenza per questa fase di \textit{training} sono i pesi derivanti dall'addestramento effettuato in Sezione \ref{subsec:first_training_rgb_kaist}, è quindi stata attuata una tecnica di \textit{Transfer Learning} (\ref{subsec:transfer_learning}) in maniera da ridurre i tempi di addestramento. In questo caso, operando su due tipologie di immagini differenti cambia il dominio, più in particolare lo spazio delle feature. La distribuzione di probabilità sulle varie immagini resta la medesima in quanto il training è svolto sulle stesse immagini, come rimane invariato anche il task, ovvero il riconoscimento di pedoni e ciclisti.
 La fase di apprendimento è proceduta senza particolari intoppi, come si può vedere in Figura \ref{fig:fine_tuning_2} le varie loss scendono in maniera stabile e controllata. In maniera del tutto similare a quanto si può vedere in Figura \ref{fig:fine_tuning_1}.
+
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/ruby-yogurt-lwir.pdf}
-    \caption{Transfer learning da COCO a KAIST}
+    \caption{Transfer learning da KAIST Visibile a KAIST Termico}
     \label{fig:fine_tuning_2}
 \end{figure} 
+I risultati della valutazione sul test set sono mostrati in maniera complessiva in Tabella \ref{table:first_test_lwir_kaist}. Il test è stato effettuato usando i label \textit{person}, \textit{cyclist} e \textit{people}, quest'ultimi oppurtunamente rinominati in \textit{person} per farli riconoscere correttamente a RetinaNet. La prima cosa che si nota è un calo delle performance rispetto al test sulle immagini visibili (Tabella \ref{table:first_test}).
 \begin{table}[]
     \centering
     \begin{tabular}{|c|c|c|}
@@ -284,10 +286,10 @@ La fase di apprendimento è proceduta senza particolari intoppi, come si può ve
     \caption{Test complessivo delle performance dopo l'addestramento}
     \label{table:first_test_lwir_kaist}
 \end{table}
-
+La spiegazione di questo calo delle performance si ottiene analizzando i risultati della valutazione separata effettuata sulla parte di dataset diurna e notturna, presente in Tabella \ref{table:separate_test_lwir_kaist}. 
 \begin{table}[]
     \centering
-    \subfloat[Giorno\label{table:separate_test_day}]{
+    \subfloat[Giorno\label{table:separate_test_lwir_day}]{
         \begin{tabular}{|c|c|c|}
         \hline
                     & $\#$ Istanze & mAP    \\ \hline
@@ -296,7 +298,7 @@ La fase di apprendimento è proceduta senza particolari intoppi, come si può ve
         Complessivo & 39620             & 0.3353 \\ \hline
         \end{tabular}
     }
-    \subfloat[Notte\label{table:separate_test_night}]{
+    \subfloat[Notte\label{table:separate_test_lwir_night}]{
         \begin{tabular}{|c|c|c|}
         \hline
                     & $\#$ Istanze & mAP    \\ \hline
@@ -308,3 +310,45 @@ La fase di apprendimento è proceduta senza particolari intoppi, come si può ve
     \caption{Risultati della valutazione separata}
     \label{table:separate_test_lwir_kaist}
 \end{table}
+La prima cosa che si nota guardando la Tabella \ref{table:separate_test_lwir_day} è un drastico calo della \ac{map} nella parte diurna, mentre in Tabella \ref{table:separate_test_lwir_night} abbiamo un leggero incremento. Il motivo è dovuto alla differenza di temperatura tra il pedone e quello che lo circonda. Di giorno, essendo la temperatura atmosferica più alta rispetto alla notte questa differenza di temperatura è conseguentemente più bassa, rendendo così il pedone, o chi per lui, più difficilmente riconoscibile. Di notte invece accade l'esatto contrario, la temperatura atmosferica è generalmente più bassa, quindi aumenta il delta di temperatura tra il pedone e l'ambiente circostante, rendendolo più facilmente riconoscibile. Considerazioni simili possono essere fatte sull'analisi svolta sulla parte di dataset RGB in quanto di notte essendoci poca luce si fatica di più a riconoscere un oggetto che non è illuminato di luce propria, di giorno invece accade l'esatto contrario.
+\textbf{aggiungere tabella con una colonna in più che rappersenta la differenza di performance tra le valutazioni}
+\subsection{ALTRA ROBA DA SCRIVERE}
+
+\section{Data Augmentation}
+\label{sec:data_augmentation}
+Nel Deep Learning avere un dataset ampio è un prerequisito fondamentale per far apprendere al proprio modello le caratteristiche che portano ad ottenere buoni risultati ed evitare il fenomeno dell'overfitting. Nel caso di \textbf{SEZIONE DA SCRIVERE SU ANNOTAZIONI MANUALI} per ovvie questioni di tempo e praticità le annotazioni effettuate sul dataset sono molte poche, rendendolo così appena sufficiente ad i nostri scopi. Per ovviare a questo problema esiste la \textit{Data Augmentation}. Con questo termine si fa riferimento a tutte quelle tecniche che permettono di creare nuovi dati tramite manipolazioni dei dati originali. Ad esempio, restando nel dominio delle immagini, la più semplice tecnica di \textit{Data Augmentation} è applicare casualmente alle immagini in input trasformazioni come possono essere la rotazione o l'inversione secondo un asse. Recentemente l'interesse è virato più verso una \textit{Data Augmentation} mirata al dataset su cui verrà applicata, ovvero con una serie di regole che comprendono il tipo di trasformazione da applicare, l'intensità e la probabilità con cui verrà applicata. Sono necessarie quindi nuove fasi di addestramento per apprendere queste regole che a tutti gli effetti possono essere considerate alla stessa stregua di iperparametri del nostro modello.
+\subsection{Auto Augment}
+\label{subsec:auto_augment}
+Lo scopo di \textit{AutoAugment} \cite{DBLP:journals/corr/abs-1805-09501} è automatizzare il processo che porta ad ottenere delle regole di \textit{Data Augmentation} per un determinato dataset obbiettivo. La ricerca delle migliori policy per il dataset viene trattato alla pari di un problema di ricerca discreta, in Figura \ref{fig:AutoAugment} è possibile vedere uno schema riassuntivo della struttura di \textit{AutoAugment}.
+\begin{figure}
+    \centering
+    \smartdiagramset{
+        font=\tiny,
+        uniform color list=gray!20 for 4 items
+    }
+    \smartdiagram[flow diagram:horizontal]{Controller(RNN), Campionamento di una strategia $S$, Addestramento di una rete child con $S$ per ottenere una accuratezza $R$ in validazione, Uso di $R$ per aggiornare il controller}
+    \caption{Schema di funzionamento di AutoAugment}
+    \label{fig:AutoAugment}
+\end{figure}
+I componenti principali di \textit{AutoAugment} sono due: un algoritmo di ricerca ed uno spazio di ricerca. 
+L'algoritmo di ricerca, implementato tramite una \ac{RNN} campiona una policy $S$. Questa policy al suo interno contiene le informazioni riguardanti quale trasformazione applicare, con quale probabilità applicarla, e con quale potenza. Un esempio di policy contenuta all'interno dello spazio di ricerca è possibile vederla in Figura \ref{fig:policy}. La prima subpolicy definisce una specifica sequenza di operazioni, la prima è \textit{Shear X} con probabilità di essere applicata pari a $0.9$ e potenza di $7/10$. La seconda operazione che verrà effettuata è \textit{Invert} con probabilità $0.8$. 
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/svhn_viz_policy2.png}
+    \caption{Esempio di policy con 5 sub-policy, immagine tratta da \cite{DBLP:journals/corr/abs-1805-09501}}
+    \label{fig:policy}
+\end{figure} 
+In totale le operazioni nello spazio di ricerca sono 16, ed ognuna di esse ha un intervallo di potenza discretizzato con cui può essere applicata che varia da $1$ a $10$. In maniera del tutto similare vengono discretizzati anche i valori di probabilità in un intervallo di $11$. Trovare quindi una subpolicy è un problema di ricerca in uno spazio di dimensione $(16 \times 10 \times 11)^2$. Considerando che una policy contiene $5$ subpolicy lo spazio di ricerca arriva a $(16 \times 10 \times 11)^{10}$, che è nell'ordine di grandezza di $10^{32}$.
+
+L'algoritmo di ricerca prende spunto dalle tecniche di apprendimento per rinforzo. Le sue componenti sono due, il controller \ac{RNN} e l'algoritmo di addestramento, che in questo caso è il \textit{Proximal Policy Optimization} \cite{DBLP:journals/corr/SchulmanWDRK17}. L'addestramento del controller \ac{RNN} è realizzato con un segnale di ricompensa che rappresenta il miglioramento in termini di generalizzazione della rete child addestrata con la policy $S$. Nel caso di Figura \ref{fig:AutoAugment} la ricompensa è $R$, ovvero il risultato della valutaizone sul validation set. Alla fine di questa fase di ricerca vengono trovate le migliori $5$ policy, che vengono concatenate in un'unica grande policy contentente $25$ subpolicy.
+\paragraph{AutoAugment per Object Detection}
+Fino ad ora abbiamo parlato di \textit{AutoAugment} in termini di classificazione di una immagini, lo scopo della tesi è però realizzare \textit{Object Detection}. Gli stessi autori di \cite{DBLP:journals/corr/abs-1805-09501} in \cite{DBLP:journals/corr/abs-1906-11172} hanno evoluto questa tecnica per far si che operi anche su questo tipo di compiti.
+
+Come in precedenza il problema viene trattato come una ricerca in uno spazio discreto. Sempre come prima vengono definite policy come insiemi di $K$ subpolicy, con queste ultime composte da $N$ operazioni da applicare all'immagine in maniera sequenziale. In maniera del tutto analoga ogni operazione ha una probabilità con cui sarà applicata, a differenza della classificazione è stata resa più granulare la scelta dei possibili valori discretizati, chiamandoli $M$ per la potenza e $L$ per la probabilità. 
+Una importante differenza invece riguarda le operazioni che è possibile applicare all'immagine, in quanto in aggiunta alle classiche operazioni di trasformazione dell'intero frame si aggiungono ulteriori $6$ operazioni applicabili solamente a livello di \ac{BB}, raggiungendo così un totale di $22$ operazioni. La dimensione dello spazio di ricerca di una subpolicy raggiunge quindi le dimensioni di $(22 \times L \times M)^2$, e più in particolare lo spazio di ricerca di una policy arriva a $(22 \times L \times M)^{10}$.
+
+Gli autori in esperimenti preliminari hanno trovato che porre $L = M = 6$ è un buon \textit{trade-off} tra performance e costi computazionali, in quanto si arriva ad uno spazio di ricerca nell'ordine di $10^{28}$. Purtroppo però rimane comunque computazionalmente molto oneroso in quanto con $400$ \ac{TPU} sono state impiegate circa $48$ ore. 
+
+Tuttavia sono state rilasciate delle policy apprese da dataset differenti con cui sono stati eseguiti esperimenti che verranno successsivamente descritti. 
+\subsection{Rand Augment}
+\label{subsec:rand_augment}
