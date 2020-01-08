@@ -1,1 +1,55 @@
+\chapter{Codice di IoU over time}
+\begin{lstlisting}[caption={Algoritmo di IoU over time in Python}, language=Python, basicstyle=\tiny,label=code:ioutime]
+def compute_intersection_over_union(box1, box2):
+    x1 = max(box1[0], box2[0])
+    y1 = max(box1[1], box2[1])
+    x2 = min(box1[2], box2[2])
+    y2 = min(box1[3], box2[3])
+    intersection_area = max(0, x2 - x1 + 1) * max(0, y2 - y1 + 1)
+    box_1_area = (box1[2] - box1[0] + 1) * (box1[3] - box1[1] + 1)
+    box_2_area = (box2[2] - box2[0] + 1) * (box2[3] - box2[1] + 1)
+    intersection_over_union = intersection_area / float(box_1_area + box_2_area - intersection_area)
+    return intersection_over_union
+
+def calc_bbox_size(bbox):
+    """
+    Get the size of bbox in input
+    # Arguments
+        bbox       : coordinates of bbox (x_min, y_min, x_max, y_max).
+    # Returns
+        size of bbox
+    """
+    return (bbox[2]-bbox[0])*(bbox[3]-bbox[1])
+
+def iou_evaluation(detections, threshold):
+    index_max_detections = np.argmax(list(map(lambda x: len(x), detections)))
+    id_tree = 0
+    idx = index.Index(interleaved=True)
+    iou_values = [0]*len(detections[index_max_detections])
+    for_debug = np.concatenate(np.delete(detections, index_max_detections, axis = 0))
+    for detection in for_debug:
+        idx.insert(id_tree, detection[0:4], obj = detection[4:6])
+        id_tree = id_tree + 1
+    for i in range(len(detections[index_max_detections])):
+        intersection_bbox = idx.intersection(detections[index_max_detections][i][0:4], objects=True)
+        num_elem = 0
+        for item in intersection_bbox:
+            num_elem = i+1
+            iou_values[i] += compute_intersection_over_union(item.bbox, detections[index_max_detections][i][0:4])
+        if num_elem is not 0:
+            iou_values[i] /= num_elem
+    iou_values = np.divide(iou_values, len(detections)-1)
+    bbox = []
+    labels = []
+    scores = []
+    for det, iou in zip(detections[index_max_detections], iou_values):
+        if iou > threshold:
+            intersection_bbox = idx.intersection(det[0:4], objects=True)
+            gen = list(intersection_bbox)
+            max_bbox_index = np.argmax(list(map(lambda x: calc_bbox_size(x), list(map(lambda x: x.bbox, gen)))))
+            bbox.append(gen[max_bbox_index].bbox)
+            scores.append(max(list(map(lambda x: x.object[0], gen))))
+            labels.append(gen[max_bbox_index].object[1])
+    return np.array(bbox), np.array(scores), np.array(labels, dtype=int)
+\end{lstlisting}
 \chapter{Implementazione di RandAugment su RetinaNet}

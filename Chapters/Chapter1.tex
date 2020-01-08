@@ -39,7 +39,8 @@ Successivamente, fino al $2005$, l'evoluzione ha portato a tecniche in cui si ca
 
 Intorno al $1990$ iniziano a fare capolino le prime \ac{CNN} \cite{vaillant1994original} le quali però non hanno avuto grandi applicazioni per via dell'elevato costo computazionale rispetto alle risorse disponibili ai tempi. I modelli realizzati con \ac{CNN} non potevano essere quindi molto profondi, e per questo avevano forti limitazioni. Per ridurre questo elevato costo computazionale sono stati effettuati miglioramenti come \textit{space displacement network} \cite{lecun1998gradient}. Tramite questi perfezionamenti si è arrivato ad estendere ogni layer della \ac{CNN} in maniera tale da riuscire ad estrarre le feature da un immagine in un solo passaggio. Queste possono essere considerate un po' le antenate di quelle che attualmente chiamiamo \ac{FCN} \cite{long2015fully} \cite{chen2014semantic}. 
 \subsubsection{Detection multiscala}
-Uno degli aspetti più interessanti della ricerca si basa sulla rilevazione di oggetti con diverse misure o diverse proporzioni. Come in Figura \ref{fig:multi_scale_history} la soluzione di questo problema ha attraversato varie fasi.
+\label{subsec:multiscale_detection}
+Uno degli aspetti più interessanti della ricerca si basa sulla rilevazione di oggetti con diverse misure o diverse proporzioni. Come è possibile bedere in Figura \ref{fig:multi_scale_history} la soluzione a questo problema ha attraversato varie fasi.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/evol-multiscale.png}
@@ -47,51 +48,103 @@ Uno degli aspetti più interessanti della ricerca si basa sulla rilevazione di o
     \label{fig:multi_scale_history}
 \end{figure}
 \paragraph{Feature piramidali e finestre scorrevoli}
-Dal $2004$ al $2014$ sono stati creati un sacco di detector basati su questa filosofia, il problema è che erano stati disegnati con l'intento specifico di rilevare oggetti con proporzioni fisse. Ricercatori come R. Girshick \textit{et al.} iniziarono a cercare soluzioni a questo problema, arrivando a formulare un modello mistura \cite{felzenszwalb2009object} composto da più modelli addestrati su oggetti con differenti proporzioni. Sono state sviluppate anche altre soluzioni, basate questa volta sull'addestrare modelli separati per ogni istanza di oggetto dell'insieme di addestramento \cite{malisiewicz2011ensemble} \cite{malisiewicz2011exemplar}. Le limitazioni di tutte queste tecniche risidono nel fatto che i dataset più moderni sono molto diversificati, quindi l'introduzione di \textit{object proposal} ha dato ulteriore soluzione a questo problema.
+L'idea dietro questa tecnica è abbastanza basilare, infatti dopo aver estratto le feature da un'immagine quello che viene fatto è far scorrere una finestra rettangolare di dimensione generalmente fissa per effettuare il rilevamento e la classificazione di oggetti. 
+
+Dal $2004$ al $2014$ sono stati creati un sacco di detector basati su questa filosofia, il problema è che erano stati disegnati con l'intento specifico di rilevare oggetti con proporzioni fisse. Ricercatori come R. Girshick \textit{et al.} iniziarono a cercare soluzioni a questo problema, arrivando a formulare un modello mistura \cite{felzenszwalb2009object} composto da più modelli addestrati su oggetti con differenti proporzioni. Sono state sviluppate anche altre soluzioni, basate questa volta sull'addestrare modelli separati per ogni istanza di oggetto dell'insieme di addestramento \cite{malisiewicz2011ensemble} \cite{malisiewicz2011exemplar}. Le limitazioni di tutte queste tecniche risidono nel fatto che i dataset più moderni sono molto diversificati, quindi nel corso del tempo queste tecniche sono diventate sempre meno precise ed utilizzabili. Ciò ha portato allo sviluppo di \textit{Object Proposal}.
 \paragraph{Object Proposal}
-L'idea dietro questa tecnica è creare regioni non etichettate con classi che potenzialmente possono contenere qualunque tipo di oggetto. 
-Il primo avvistamento di \textit{Object Proposal} risale al $2010$ in un task di rilevazione di oggetti \cite{alexe2010object}. 
-Un algoritmo di questo tipo 
+Il primo avvistamento di \textit{Object Proposal} risale al $2010$ in un task di rilevazione di oggetti \cite{alexe2010object}.
+Possiamo definire una regione come un'area di un immagine contenente pixel che hanno caratteristiche comuni tra di loro. L'idea dietro questa tecnica è creare regioni non etichettate con classi che potenzialmente possono contenere qualunque tipo di oggetto, e lo scopo è riuscire a rilevare oggetti di varie misure e scale pur non dovendo necessariamente svolgere una ricerca esaustiva con finestre scorrevoli.
+
+Per ottenere queste regioni di pixel su un immagine ci sono vari modi, discussi in parte da J. Hosang \textit{et al.} in \cite{hosang2015makes}.
+\paragraph{Deep Regression}
+Questa tecnica, sviluppata dal $2013$ al $2016$ si basa sull'idea di predirre direttamente le coordinate della \ac{BB} contenente l'oggetto usando come feature quelle estratte da un modello di \textit{deep learning} \cite{redmon2016you}. Il vantaggio fondamentale di questo approccio è l'efficienza e la velocità di implementazione, mentre uno svantaggio è la bassa accuratezza di localizzazione specialmente su piccoli oggetti.
+\paragraph{Multi Reference Detection}
+Questo approccio è il più usato per il rilevamento di oggetti con scale differenti e si basa sull'uso di un insieme di finestre rettangolari, che possono variare in dimensione e proporzioni, applicate sull'immagine, dette anche \textit{Anchor Boxes} \cite{ren2015faster, liu2016ssd, redmon2017yolo9000}. Sulla base di queste regioni rettangolari viene poi effettuata una predizione della \ac{BB}. 
+\paragraph{Multi Resolution Detection}
+Negli ultimi anni un altro approccio che ha preso piede si basa sul rilevare oggetti di con dimensioni differenti a layer differenti \cite{liu2016ssd, lin2017feature, zhang2018single, cai2016unified}. Basti pensare alle \ac{CNN} che nel corso della propagazione dell'immagine in input, grazie alla loro composizione, formano una serie di feature piramidali. Diventa quindi più facile rilevare oggetti grandi nei layer più profondi e viceversa diventa più facile rilevare oggetti piccoli nei layer meno profondi. 
 \subsubsection{Regressione basata su Bounding Box}
+Questo insieme di metodologie ha lo scopo di affinare la posizione delle \ac{BB} basandosi sulle rilevazioni effettuate tramite \textit{Object Proposal} o \textit{Anchor Boxes}, descritte in \ref{subsec:multiscale_detection}. Uno schema riassuntivo dell'evoluzione tecnica di questi approcci è in Figura \ref{fig:bbox_history}.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/evol-bbreg.png}
     \caption{Evoluzione della regressione basata su \ac{BB} \cite{DBLP:journals/corr/abs-1905-05055}}
     \label{fig:bbox_history}
 \end{figure}
-\paragraph{Senza regressione}
-\paragraph{Da BB a BB???}
-\paragraph{Da feature a BB???}
-\subsubsection{Context priming}
+I primi detector non raffinavano in alcun modo la posizione delle \ac{BB}, anzi molte volte usavano direttamente l'output derivato da un algoritmo basato su finestre scorrevoli. L'unico modo per ottenere rilevazioni più precise era quindi costruire modelli piramidali molto densi e assicurarsi di far scorrere la finestra lungo tutta l'immagine.
+\paragraph{Da Bounding Box a Bounding Box}
+I primi ad usare una forma di regressione per aumentare la precisione sulle \ac{BB} sono stati P. F. Felzenszwalb \textit{et al.} in DPM \cite{5255236} formulando la soluzione con il metodo dei minimi quadrati. Per scendere più nel dettaglio dobbiamo considerare un modello con feature piramidali.
+Nel modello proposto in \cite{5255236} viene usata l'intera configurazione di $z$ per predirre la \ac{BB} riguardante quell'oggetto. In breve l'implementazione è effettuata tramite una funzione $g(z)$ che restituisce come output le coordinate $(x_1, y_1)$ e $(x_2, y_2)$ della \ac{BB}. Dopo la fase di addestramento del modello viene usato l'output di $g(z)$ per un'ulteriore fase di addestramento dove tramite il metodo dei minimi quadrati si impara a predirre $x_1, y_1, x_2 \text{ e } y_2$ partendo da $g(z)$. C'è da specificare che questo tipo di ottimizzazione è stato implementato a livello di post-processing, quindi risulta del tutto opzionale.
+\paragraph{Da feature a Bounding Box}
+A differenza del tipo di ottimizzazione proposto in precedenza, con l'introduzione delle \textit{Faster RCNN} \cite{ren2015faster} nel $2015$ la regressione è implementata a livello di rilevamento dell'oggetto e quindi viene addestrata insieme al modello. Inoltre, sempre confrontandolo con quanto detto prima, vengono usate anche diverse funzioni di loss da minimizzare che risultano più robuste rispetto a quella usata nei minimi quadrati. Degli esempi possono essere la \textit{smooth-L1} o la \textit{root-square}.
+
+\subsubsection{Valutazione del contesto}
+Generalmente gli oggetti che vengono rilevati dai sistemi di detection sono immersi in un contesto. Il cervello umano durante la fase cognitiva trae vantaggio dal riconoscere un contesto, motivo per cui le tecniche spiegate nel proseguio di questa sottosezione provano a emulare questa capacità degli umani. Una breve storia di come queste tecniche si sono evolute è in Figura \ref{fig:context_history}.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/evol-context.png}
     \caption{Evoluzione del context priming \cite{DBLP:journals/corr/abs-1905-05055}}
     \label{fig:context_history}
 \end{figure}
-\paragraph{Local Context}
-\paragraph{Global Context}
-\paragraph{interactive context}
+\paragraph{Contesto locale}
+Per contesto locale si intendono tutte le informazioni visive che fanno parte dell'area prossima ai contorni di un oggetto. Sin dagli anni 2000 Sinha e Torralba in \cite{torralba2001detecting} hanno provato che includere del contesto locale migliora le prestazioni ai fini del rilevamento di volti. Dalal e Triggs in \cite{dalal2005histograms} hanno dimostrato che introdurre una piccola porzione di sfondo migliora i risultati anche nel rilevamento dei pedoni. 
+\paragraph{Contesto globale}
+Il contesto globale può essere considerato come una fonte di informazione aggiuntiva riguardante la scena in cui l'oggetto da rilevare è immerso. Un metodo usato all'inizio per inglobare nella detection informazioni sul contesto globale era realizzare delle statistiche che riassumevano la totalità degli elementi compresi nella scena \cite{divvala2009empirical}. In lavori più moderni catalogabili come modelli di \textit{deep learning} sono state intraprese due strade, la prima è quella di inglobare il contesto tramite campi recettivi sempre più ampi, a volte anche più dell'immagine stessa \cite{redmon2016you} o  usare l'operazione di \textit{pooling} delle \ac{CNN} \cite{li2018r}. La seconda via per ottenere informazioni dal contesto globale è pensare ad esso come un flusso di informazioni sequenziali ed usare \ac{RNN} \cite{bell2016inside, li2016attentive}. 
+\paragraph{Contesto derivato dalle interazioni}
+L'ultima contestualizzazione che si può dare ad un oggetto riguarda le sue interazioni con ciò che lo circonda. Per interazioni si possono intendere tutte quei vincoli o dipendenze che può avere l'obbiettivo della rilevazione. Recentemente in alcuni lavori sono state analizzate questo tipo di informazioni contestuali ai fini del miglioramento della detection. Questi miglioramenti possono essere divisi in due macrocategorie, la prima di queste è quella in cui si esplorano le relazioni tra oggetti individuali \cite{felzenszwalb2009object, desai2011discriminative, song2011contextualizing, chen2017spatial, hu2018relation}. Nella seconda categoria fanno parte i lavori nei quali vengono prese in considerazione le relazioni che ci sono tra gli oggetti e la scena che li circonda \cite{gupta2015exploring, liu2018structure}.
 \subsubsection{Non Maximum Suppression}
+Per \ac{NMS} si fa riferimento a tutte quelle tecniche di post processing per ridurre il fenomeno delle \ac{BB} duplicate. Questo fenomeno si concretizza quando, per la stessa rilevazione, ci sono più \ac{BB} che lo circondano con confidenze molto simili tra di loro. L'evoluzione di queste tecniche nel corso del tempo è possibile vederla in Figura \ref{fig:NMS_history}. 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/evol-nms.png}
     \caption{Evoluzione della Non Maximum Suppression \cite{DBLP:journals/corr/abs-1905-05055}}
     \label{fig:NMS_history}
 \end{figure}
-\paragraph{greedy}
-\paragraph{aggregazione}
-\paragraph{imparare NMS}
+
+
+\paragraph{Greedy}
+La maniera più semplice per attuare la \ac{NMS} è con un algoritmo di tipo \textit{greedy}, infatti per un insieme di \ac{BB} sovrapposte si considera solamente quella con la confidenza massima, mentre le altre vengono scartate. La sua semplicità, che da un certo punto di vista può anche essere vista come un punto di forza, può anche essere fonte di debolezze in quanto un algoritmo \textit{greedy} non sempre porta all'ottimalità. Si possono infatti verificare casi in cui la \ac{BB} con massima confidenza non ricopre tutto l'oggetto, o ancora peggio le \ac{BB} di oggetti vicini tra di loro possono essere scaratate erroneamente.
+
+
+\paragraph{Aggregazione di Bounding Box}
+L'aggregazione di \ac{BB} vicine tra di loro è un altro approccio per attuare la \ac{NMS} \cite{viola2001rapid, sermanet2013overfeat, rothe2014non, mrowca2015spatial}. L'aggregazione può essere fatta sia attraverso algoritmi di \textit{clustering}, sia combinando le \ac{BB} sovrapposte in un unica singola detection. 
+
+
+\paragraph{Imparare ad applicare Non-maximum Suppression}
+Approcci più recenti per migliorare le già sopracitate tecniche di \ac{NMS} riguardano l'apprendimento automatico \cite{wan2015end, desai2011discriminative, hosang2017learning, henderson2016end}. L'idea dietro questi metodi è trattare la \ac{NMS} alla stessa stregua di un filtro che assegna nuovi valori di confidenza a tutte le detection e quindi bisognoso di una fase di addestramento. 
+
 \subsubsection{Hard Negative Mining}
+Uno dei problemi a cui bisogna far fronte quando si tratta la \textit{Object Detection} è lo sbilanciamento tra gli oggetti che vogliamo rilevare e conseguentemente classificare e tutto quello che non ci interessa. La prima soluzione che potrebbe venire in mente per risolvere questo problema è addestrare il modello a riconoscere lo sfondo, ma questo porta a risultati distruttivi durante l'addestramento in termini di efficienza. Tecniche di \ac{HNM} servono proprio a risolvere queste problematiche. Una breve storia è possibile vederla in Figura \ref{fig:HNM_history}.
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{images/evol-hardnegmining.png}
     \caption{Evoluzione di Hard Negative Mining \cite{DBLP:journals/corr/abs-1905-05055}}
     \label{fig:HNM_history}
 \end{figure}
-\paragraph{bootstrap}
+\paragraph{Bootstrap}
+Per Bootstrap si fa riferimento ad un gruppo di tecniche attraverso le quali si fa iniziare la fase di addestramento prendendo con dello sfondo. Successivamente quando si rilevano esempi di sfondo classificati erroneamente si aggiungono al processo di addestramento. Questo approccio risulta efficiente in quanto si evita di addestrare il modello su milioni di esempi di sfondi \cite{viola2001rapid, papageorgiou1998general, rowley1996human}.
 \paragraph{HNM in detector basati su deep learning}
+Recenemente modelli come Faster RCNN e \ac{YOLO} per risolvere questo problema bilanciano i pesi tra finestre con esempi negativi e positivi. Nonostante tutto però non viene risolto completamente il problema di sbilanciamento, quindi c'è stato un ritorno al \textit{bootstrap}. Un altro modo per risolvere lo sbilanciamento è l'introduzione di nuove funzioni di Loss, come ad esempio la Focal Loss in RetinaNet \cite{lin2017focal}. 
 \subsection{Dataset}
+L'insieme dei dati con cui addestrare e testare le performance dei modelli via via sviluppati nel corso del tempo ha subito un evoluzione. Costruire dataset sempre più grandi e con meno bias è sempre stato un obbiettivo principale che si ponevano i ricercatori, tutto ciò per realizzare dei benchmark che mettessero sempre di più a dura prova i nuovi modelli. Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famosi nell'ambito della computer vision, con particolare attenzione per alcuni incentrati sulla rilevazione di pedoni. 
+\paragraph{MIT Ped.} \cite{papageorgiou2000trainable}
+\paragraph{INRIA} \cite{dalal2005histograms}
+\paragraph{Caltech} \cite{dollar2009pedestrian}
+
+\paragraph{Pascal VOC}
+\ac{VOC} è collocabile in un periodo che va dal $2005$ al $2012$ \cite{everingham2010pascal, everingham2015pascal}. \ac{VOC} consiste di due parti complementari, la prima è un dataset pubblico e disponibile per esperimenti e benchmark, la seconda è una sfida annuale. Nel corso degli anni ne sono state sviluppate diverse versioni, individuabili dal pattern VOC\texttt{ANNO}. I task effettuabili su questo dataset spaziano classificazione di immagini alla object detection passando anche per il rilevamento di azioni. 
+Per la sfida nel $2007$ sono state raccolte solo immagini dal social network \href{https://www.flickr.com/}{Flickr}. Le immagini sono molto variegate, ad esempio come scritto nell'articolo di presentazione del dataset \cite{everingham2010pascal} ci possono essere motociclette in diverse pose e forme, come può essere il veicolo per strada o come soggetto principale del fotogramma. 
+Un altro esempio è la classe \textit{"person"}, mentre in molti dataset con questa classe ci si riferisce ad un pedone in VOC2007 con questa classe si fa riferimento ad un essere umano in diversi contesti. 
+Per realizzare il dataset sono state definite delle keyword con cui effettuare query su \href{https://www.flickr.com/}{Flickr}. Queste suddette keyword sono state definite sulla base delle classi degli oggetti che si desiderava annotare. Tramite queste query sono state recuperate $500.000$ immagini, non prendendo in considerazione la data di acquisizione, il nome del fotografo, la location e via discorrendo. 
+Le query venivano effettuate a gruppi di $100.000$ immagini alla volta, di cui venivano selezionate casualmente solamente alcuni fotogrammi ed inseriti nel dataset. Questa operazione è stata ripetuta fino ad ottenere la quantità desiderata di file. 
+L'operazione successiva è stata quella di eliminare i duplicati o comunque immagini molto somiglianti tra di loro, una volta fatto questo sono passati ad annotarle. Di queste $500.000$ immagini agli annotatori ne sono state presentate $44.269$. Gli annotatori avevano la facoltà di scartare alcune immagini se le ritenevano non adatte ad essere annotate o avevano una confidenza bassa sull'eventuale annotazione da effettuare. Nonostante ciò è stato scoperto un'elemento che portava a del bias all'interno del dataset. L'elemento in questione riguardava il modo in cui le immagini sono state recuperate. Quando si effettua una query su \href{https://www.flickr.com/}{Flickr} il server restituisce le immagini in ordine cronologico di upload sulla piattaforma. Il dataset è stato realizzato nel Gennaio $2007$, quindi buona parte delle immagini erano ambientate in un contesto natalizio o perlopiù invernale. Con VOC2008 il problema è stato risolto aggiungendo una data casuale all'interno della query per recuperare le immagini.  
+\paragraph{KITTI}\cite{geiger2012we}
+\paragraph{ILSVRC}
+Come per \ac{VOC} anche \ac{ILSVRC} \cite{russakovsky2015imagenet} è una challenge organizzata annualmente dal $2010$ al $2017$. Inoltre, sempre come per \ac{VOC} è presente un dataset pubblico disponibile per addestramenti e test. 
+\paragraph{CityPersons} \cite{zhang2017citypersons}
+\paragraph{MS-COCO} \cite{lin2014microsoft}
+\paragraph{Open Images} \cite{krasin2017openimages}
+\paragraph{EuroCity} \cite{braun2018eurocity}
+
 \subsection{Metriche}
 \section{Detector basati su metodi tradizionali}
 \label{sec:traditional_method}
