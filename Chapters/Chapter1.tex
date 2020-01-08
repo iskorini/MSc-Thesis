@@ -126,9 +126,8 @@ Per Bootstrap si fa riferimento ad un gruppo di tecniche attraverso le quali si 
 Recenemente modelli come Faster RCNN e \ac{YOLO} per risolvere questo problema bilanciano i pesi tra finestre con esempi negativi e positivi. Nonostante tutto però non viene risolto completamente il problema di sbilanciamento, quindi c'è stato un ritorno al \textit{bootstrap}. Un altro modo per risolvere lo sbilanciamento è l'introduzione di nuove funzioni di Loss, come ad esempio la Focal Loss in RetinaNet \cite{lin2017focal}. 
 \subsection{Dataset}
 L'insieme dei dati con cui addestrare e testare le performance dei modelli via via sviluppati nel corso del tempo ha subito un evoluzione. Costruire dataset sempre più grandi e con meno bias è sempre stato un obbiettivo principale che si ponevano i ricercatori, tutto ciò per realizzare dei benchmark che mettessero sempre di più a dura prova i nuovi modelli. Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famosi nell'ambito della computer vision, con particolare attenzione per alcuni incentrati sulla rilevazione di pedoni. 
-\paragraph{MIT Ped.} \cite{papageorgiou2000trainable}
-\paragraph{INRIA} \cite{dalal2005histograms}
-\paragraph{Caltech} \cite{dollar2009pedestrian}
+\paragraph{MIT Ped.} Risale all'inizio del nuovo milleno ed è uno dei primi dataset che ha come scopo il riconoscimento di pedoni. Rispetto agli standard odierni risulta molto piccolo in quanto contiene circa 509 immagini usabili per l'addestramento e 200 usabili per la fase di test. \cite{papageorgiou2000trainable} 
+\paragraph{INRIA} Risalente al 2005, nasce dall'esigenza di creare un dataset dove la detection diventasse più complicata rispetto a quello fatto dal MIT \cite{dalal2005histograms}. Contiene 1805 immagini ad una risoluzione di $64 \times 128$ pixel di esseri umani. Le immagini usate per l'insieme di training sono 2478, ovvero 1239 immagini, contenenti esempi positivi, prese dal totale più le stesse immagini ma riflesse secondo l'asse delle $y$.
 
 \paragraph{Pascal VOC}
 \ac{VOC} è collocabile in un periodo che va dal $2005$ al $2012$ \cite{everingham2010pascal, everingham2015pascal}. \ac{VOC} consiste di due parti complementari, la prima è un dataset pubblico e disponibile per esperimenti e benchmark, la seconda è una sfida annuale. Nel corso degli anni ne sono state sviluppate diverse versioni, individuabili dal pattern VOC\texttt{ANNO}. I task effettuabili su questo dataset spaziano classificazione di immagini alla object detection passando anche per il rilevamento di azioni. 
@@ -137,23 +136,76 @@ Un altro esempio è la classe \textit{"person"}, mentre in molti dataset con que
 Per realizzare il dataset sono state definite delle keyword con cui effettuare query su \href{https://www.flickr.com/}{Flickr}. Queste suddette keyword sono state definite sulla base delle classi degli oggetti che si desiderava annotare. Tramite queste query sono state recuperate $500.000$ immagini, non prendendo in considerazione la data di acquisizione, il nome del fotografo, la location e via discorrendo. 
 Le query venivano effettuate a gruppi di $100.000$ immagini alla volta, di cui venivano selezionate casualmente solamente alcuni fotogrammi ed inseriti nel dataset. Questa operazione è stata ripetuta fino ad ottenere la quantità desiderata di file. 
 L'operazione successiva è stata quella di eliminare i duplicati o comunque immagini molto somiglianti tra di loro, una volta fatto questo sono passati ad annotarle. Di queste $500.000$ immagini agli annotatori ne sono state presentate $44.269$. Gli annotatori avevano la facoltà di scartare alcune immagini se le ritenevano non adatte ad essere annotate o avevano una confidenza bassa sull'eventuale annotazione da effettuare. Nonostante ciò è stato scoperto un'elemento che portava a del bias all'interno del dataset. L'elemento in questione riguardava il modo in cui le immagini sono state recuperate. Quando si effettua una query su \href{https://www.flickr.com/}{Flickr} il server restituisce le immagini in ordine cronologico di upload sulla piattaforma. Il dataset è stato realizzato nel Gennaio $2007$, quindi buona parte delle immagini erano ambientate in un contesto natalizio o perlopiù invernale. Con VOC2008 il problema è stato risolto aggiungendo una data casuale all'interno della query per recuperare le immagini.  
-\paragraph{KITTI}\cite{geiger2012we}
+
+\paragraph{Caltech Pedestrian Dataset} Il \textit{Caltech Pedestrian Dataset} \cite{dollar2009pedestrian} nasce nel 2009 ed è molto più ampio di tutti gli altri dataset visti in precedenza. Le immagini sono state ricavate da circa 10 ore di video girato a 30 frame al secondo in un ambiente urbano con traffico regolare. È quindi presente un numero di frame che è nell'ordine di grandezza di $10^6$. La telecamera con cui sono state acquisite le registrazioni è stata piazzata su un'autovettura con un guidatore che attraversava le strade di Los Angeles guidando in maniera normale. La risoluzione delle immagini è di $640 \times 480$ e come conseguenza del fatto che il sistema è stato più volte smontato e rimontato ci sono piccole variazioni nella posizione della telecamera. 
+
+Sono stati annotati $250.000$ fotogrammi, per un totale di $350.000$ \ac{BB} e $2300$ pedoni univoci. Di tutti i fotogrammi, circa il $50\%$ non hanno pedoni, mentre il $30\%$ del totale ne ha almeno due. In media un pedone è visibile per un tempo di 5 secondi. Come su dataset più recenti i pedoni sono raggruppati secondo la loro distanza dal guidatore. In particolare abbiamo che i pedoni sono vicini se la loro altezza è maggiore di $80$ pixels, sono ad una distanza media se la loro altezza è compresa tra $30$ ed $80$ pixels, mentre sono consideati lontani se la loro altezza è al più $30$ pixels. Questa discretizzazione riguardante la distanza dei pedoni è stata realizzata seguendo la distribuzione delle altezze degli stessi all'interno del dataset. Sono state inoltre prese in considerazione statistiche riguardanti l'occlusione dei pedoni e la loro posizione rispetto alla telecamera.
+
+Il dataset è stato creato da $11$ sessioni dove in ognuna di queste venivano esplorati $5$ quartieri. Dopodiché le prime sei sessioni sono state destinate all'addestramento, mentre le rimanenti cinque sono state adibite a test set.
+
+\paragraph{KITTI}  \cite{geiger2012we} Questo dataset è realizzato a partire da hardware usato per la guida autonoma. La particolarità è che offre informazioni tridimensionali dell'ambiente grazie a dei sensori laser dedicati che mappano il territorio circostante. Per la realizzazione sono state quindi utilizzate due telecamere a colori con una risoluzione di $1392 \times 512$ pixels, uno scanner laser ed un localizzatore GPS con un'unità di correzione RTK, il tutto orchestrato da un calcolatore su cui girava un database in real time.  Tutto questo hardware è stato montato su una station wagon che è stata guidata per dei normali scenari cittadini. 
+Inoltre le annotazioni non sono \ac{BB} in due dimensioni, ma bensì dei parallelepipedi che avvolgono gli oggetti. Per la loro realizzazione sono stati presi annotatori umani che hanno posizionato \ac{BB} tridimensionali su oggetti come auto, furgoni, camion, tram, pedoni e ciclisti. Inoltre gli annotatori sono stati istruiti per marcare ogni \ac{BB} come visibile, semi occlusa, occlusa o troncata. 
+
+
+
 \paragraph{ILSVRC}
 Come per \ac{VOC} anche \ac{ILSVRC} \cite{russakovsky2015imagenet} è una challenge organizzata annualmente dal $2010$ al $2017$. Inoltre, sempre come per \ac{VOC} è presente un dataset pubblico disponibile per addestramenti e test. 
-\paragraph{CityPersons} \cite{zhang2017citypersons}
+Come per alcuni dei dataset precedentemente introdotti le immagini state prese in parte da Flickr, con l'aggiunta però di altri motori di ricerca. In particolare andremo ad analizzare la costruzione della parte di dataset riguardante la \textit{object detection}, però il dataset contiene anche una parte dedicata alla classificazione di immagini ed un'altra parte dedicata alla rilevazione singola di oggetti all'interno dell'immagine. 
+
+Le classi di oggetti presenti sono $200$ e sono stati scelte partendo dalle $1000$ classi usate per la classificazione di immagini. Una prima riduzione per arrivare a $494$ classi è stata inizialmente effettuata tramite l'eliminazione di label corrispondenti ad oggetti che occupavano gran parte del fotogramma o semplicemente non adatti alla \textit{object detection}. Un ulteriore operazione di unificazione tra classi simili ha portato il numero a $200$. 
+
+Per il training set le immagini hanno tre provenienze differenti. Le prima sorgente di immagini è la parte di dataset dedicata alla rilevazione singola di oggetti. Per aggiungere ulteriori esempi negativi sono state effettuate prese immagini da motori di ricerca. Le immagini provenienti da queste due prime fonti sono state annotate solamente con un sottoninsieme delle classi totali. L'ultima sorgente di immagini è la piattaforma Flickr su cui sono state fatte query generiche. 
+Riguardo invece la porzione di dataset dedicata alla validazione e al test la situazione è molto simile in quanto la fonte primaria ($77\%$) è la porzione di di \ac{ILSVRC}2012 adibita alla rilevazione di oggetti singoli, a cui però sono state sottratte le immagini nel quale gli oggetti occupavano più del $50\%$ dell'area totale del fotogramma. Per aggiungere ulteriori esempi, come per il training set, sono state effettuate interrogazioni generiche su Flickr. A differenza dell'insieme di immagini di addestramento, per la validazione e il test, sono state usate tutte e $200$ le classi disponibili. 
+In totale per il traning set sono presenti circa $458.000$ immagini, mentre per il validation e test set sono presenti $46.000$ fotogrammi. 
+\paragraph{CityPersons} Zhang \textit{et al. } \cite{zhang2017citypersons} propongono un nuovo dataset derivante da Cityscapes \cite{cordts2016cityscapes}, ma invece che focalizzarsi sulla segmentazione delle scene in contesti urbani CityPersons è incentrato sulla rilevazione di pedoni. Infatti per ogni frame di Cityscapes sono stati annotati esseri umani tramite \ac{BB}.
+
+Le classi usate in questo dataset sono quattro, e variano a seconda della postura del pedone. Con \texttt{pedestrian} vengono indicate le persone in piedi, che corrono o camminano, mentre con \texttt{rider} si indicano quelle persone che sono alla guida di un mezzo a due ruote. Sono presenti altre due classi per indicare le persone sedute (\texttt{sitting person}) e persone con pose inusuali (\texttt{other person}).
+
+Viene standardizzato il processo di annotazione dei \texttt{pedestrian} e \texttt{riders} in quanto le \ac{BB} hanno tutte la stessa proporzione ($0.41$), è quindi sufficiente tracciare una linea che va dalla testa ai piedi del pedone per generare una \ac{BB} delle giuste dimensioni. In questo modo si perfeziona l'allineamento della regione con l'oggetto da rilevare, e quindi si migliorano le prestazioni dell'eventuale modello. 
+Per le rimanenti due classi invece non è stato standardizzato il processo, quindi vengono semplicemente disegnate \ac{BB} che contengono la persona. Un'altra operazione che è stata effettuata è stata ricercare tra le immagini tutte quelle \texttt{persone false} (manichini, statue, riflessi) per marcarli come regioni da ignorare. 
+
+Il dataset è composto da $5000$ immagini, con un totale di circa $35000$ annotazioni e $13000$ regioni da ignorare. A differenza di KITTI e Caltech c'è una densità di persone per frame sette volte superiore ed il numero di individui distinti è prossimo a $20.000$, quindi rispettivamente $15$ e $3$ volte superiore.  La suddivisione tra test e train set è la stessa di Cityscapes. 
 \paragraph{MS-COCO} \cite{lin2014microsoft}
-\paragraph{Open Images} \cite{krasin2017openimages}
-\paragraph{EuroCity} \cite{braun2018eurocity}
+Attualmente \ac{MSCOCO} grazie alla difficoltà di ottenere buone prestazioni è considerato uno dei più interessanti dataset per la \textit{object detection}. Rispetto a \ac{ILSVRC} ha meno classi, ma contiene molte più immagini ed annotazioni. Il punto di forza di questo dataset è la grande molteplicità di contesti in cui sono stati catturate le immagini e soprattutto la densità di oggetti che rispecchia in maniera del tutto similare quella del mondo reale. Inoltre una proprietà importante è che gli oggetti si trovano quasi sempre in contesti appropriati.
+
+Andando più nello specifico ci si trova davanti ad un dataset che nella sua ultima versione ha, per la \textit{object detection}, circa $165.000$ immagini dedicate all'addestramento, e circa $160.000$ dedicate alla validazione ed al test. Le classi in totale sono $91$. In media ci sono $3.5$ categorie diverse e $7.7$ oggetti per immagine. In Figura \ref{fig:dataanalysis_coco} è presente uno schema riassuntivo delle statistiche di questo dataset, ed un altra cosa che si può notare è che, rispetto ad esempio a \ac{ILSVRC} e \ac{VOC}, ci sono molte meno immagini con una sola \ac{BB}, infatti in \ac{MSCOCO} solamente il $10\%$ rientra in questa categoria.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/dataanalysis.png}
+    \caption{Statistiche riassuntive di \ac{MSCOCO} \cite{lin2014microsoft}}
+    \label{fig:dataanalysis_coco}
+\end{figure}
+\paragraph{Open Images} 
+\ac{OID} \cite{krasin2017openimages}, nella versione 5, è un dataset composto da $9.2$ milioni di immagini. Ai giorni d'oggi rappresenta una delle sfide più interessanti insieme a \ac{ILSVRC} e \ac{MSCOCO}. Come per gli altri dataset anche questo si adatta a più task poiché le annotazioni sono state effettuate a livello di singola immagine, di \textit{object detection}, segmentazione e interazioni tra oggetti. 
+Analizzando l'aspetto riguardante la rilevazione di oggetti ha ancora più classi rispetto a \ac{ILSVRC} in quanto per la si arriva a $600$ differenti label su $1.9$ milioni di immagini con \ac{BB} realizzate per la maggiorparte da annotatori professionali interni a Google. In aggiunta i contesti e le ambientazioni in cui sono s   tate catturate le immagini sono molto variegati.
+\paragraph{EuroCity}  EuroCity è un dataset proposto da Braun \textit{et al. } nel 2019 \cite{braun2018eurocity}. Le immagini sono state acquisite da un veicolo in movimento in $31$ diverse città europee appartenentei $12$ differenti stati.
+La risoluzione è di $1920 \times 1024$ con un framerate di $20$ immagini al secondo. Una particolarità delle immagini acquisite da queste telecamere è lo spazio colore che arriva a $16$ bit. Quest'alta gamma dinamica si traduce in una più alta qualità dei fotogrammi in condizioni di luce non ottimale, come può essere un controsole o una notturna. 
+Per ogni città in media sono state catturate $1.7$ ore di video e le immagini sono state campionate ogni $4$ secondi ($80$ frame). Questo porta ad avere una ripetizione minore di pedoni o oggetti uguali, soprattutto in condizioni trafficate.
 
 \subsection{Metriche}
 \section{Detector basati su metodi tradizionali}
 \label{sec:traditional_method}
+\paragraph{VJ}
+\paragraph{HOG}
+\paragraph{DPM}
 \section{Detector basati su Deep learning}
 \label{sec:deep_learning_obj}
+\subsection{Estrattori di feature}
+\label{sec:feature_extractor}
 \subsection{One Stage Detector}
 \label{subsec:one_stage_detector}
+\paragraph{YOLO}
+\paragraph{SSD}
+\paragraph{DSSD}
+\paragraph{M2DET}
+\paragraph{RefineNet}
 \subsection{Two Stage Detector}
 \label{subsec:two_stage_detector}
-
+\paragraph{RCNN}
+\paragraph{SPNNET}
+\paragraph{FASTRCNN}
+\paragraph{FASTERRCNN}
+\paragraph{FPN}
+\paragraph{MASKRCNN}
 \section{RetinaNet}
 \subsection{Focal Loss}
