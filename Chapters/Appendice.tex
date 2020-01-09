@@ -52,4 +52,158 @@ def iou_evaluation(detections, threshold):
             labels.append(gen[max_bbox_index].object[1])
     return np.array(bbox), np.array(scores), np.array(labels, dtype=int)
 \end{lstlisting}
-\chapter{Implementazione di RandAugment su RetinaNet}
+
+\chapter{Implementazione di RandAugment e AutoAugment su RetinaNet}
+
+
+Implementare RandAugment e AutoAugment sull'implementazione di RetinaNet usato durante lo sviluppo del lavoro di tesi ha richiesto del lavoro di reverse engineering. Il punto di partenza per vedere come lavorava questa implementazione è stato lo script di train. La parte interessante ai fini dell'implementazione di una forma di Data Augmentation era come venissero lette e passate alla rete le immagini, in quanto in mezzo a questo processo andava piazzato un modulo che permetesse di effettuare operazioni sull'input della rete. 
+
+Le immagini vengono passate a RetinaNet tramite un oggetto, completamente configurabile, che funge da generatore. Il generatore viene creato attraverso diverse opzioni che lo andranno a configurare secondo le esigenze. Tra queste è presente anche una rudimentale forma di data augmentation che applica casualmente un'operazione selezionata da un insieme molto limitato. 
+
+Inizialmente è stato implementato AutoAugment, di cui era già disponibile un'implementazione parziale reperibile a questo \href{https://github.com/tensorflow/tpu/blob/master/models/official/detection/utils/autoaugment_utils.py}{link}. Con poche modifiche, dovute perlopiù all'utilizzo di Tensorflow 2.0 si è arrivati a \href{https://github.com/iskorini/keras-retinanet/blob/master/keras_retinanet/utils/autoaugment_utils_tf2.py}{questa implementazione}, dove tramite la chiamata della funzione \texttt{distort\_image\_with\_autoaugment} si riesce ad applicare una policy all'immagine. 
+
+Le modifiche più evidenti hanno riguardato il generatore. L'input di questa versione di RetinaNet prevede vari formati, motivo per cui gli autori hanno deciso di implementare i generatori in maniera Object Oriented. Abbiamo quindi una superclasse \texttt{Generator} e le varie sottoclassi \texttt{CocoGenerator} \texttt{CSVGenerator}, \texttt{KittiGenerator}, \texttt{OpenImagesGenerator} e \texttt{PascalVocGenerator} ognuna corrispondente ad i vari formati di input accettati da questa implementazione. L'operazione di modifica di un'immagine non è specifica del formato di input, ma dev'essere comune a tutte. Quindi l'intervento è stato circoscritto alla superclasse \texttt{Generator}. Seguendo quanto stato fatto dagli autori per implementare la prima forma rudimentale di DataAugmentation sono stati implementate due funzioni del tutto similari alle controparti originali. 
+
+
+\begin{lstlisting}[caption={Funzioni per applicare AutoAugment}, language=Python, basicstyle=\tiny,label=code:aaaugment_retinanet]
+    def auto_augument_group_entry(self, image, annotations):
+        """ Randomly auto-augment image and annotation.
+        """
+        if self.auto_augment is not None:
+            image_width = image.shape[1]
+            image_height = image.shape[0]
+            if annotations['bboxes'].shape[0] is 0:
+                return image, annotations
+            normalized_annotations = np.zeros(annotations['bboxes'].shape)
+            normalized_annotations[:,0] = annotations['bboxes'][:,0] / image_width
+            normalized_annotations[:,2] = annotations['bboxes'][:,2] / image_width
+            normalized_annotations[:,1] = annotations['bboxes'][:,1] / image_height
+            normalized_annotations[:,3] = annotations['bboxes'][:,3] / image_height
+            normalized_annotations[:, [0,1]] = normalized_annotations[:,[1,0]]
+            normalized_annotations[:, [3,2]] = normalized_annotations[:,[2,3]]
+            normalized_annotations = tf.compat.v2.convert_to_tensor(normalized_annotations, dtype=tf.float32)
+            image = tf.compat.v2.convert_to_tensor(image, dtype=tf.float32)
+            augmented_img, augmented_annotation = distort_image_with_autoaugment(
+                image, normalized_annotations, self.auto_augment)
+            augmented_annotation = augmented_annotation.numpy()
+            augmented_annotation[:, [0,1]] = augmented_annotation[:,[1,0]]
+            augmented_annotation[:, [3,2]] = augmented_annotation[:,[2,3]]
+            augmented_annotation[:, 0] = augmented_annotation[:, 0] * image_width
+            augmented_annotation[:, 2] = augmented_annotation[:, 2] * image_width
+            augmented_annotation[:, 1] = augmented_annotation[:, 1] * image_height
+            augmented_annotation[:, 3] = augmented_annotation[:, 3] * image_height
+            augmented_img = augmented_img.numpy()
+            new_annotations = {
+                'labels': annotations['labels'],
+                'bboxes': augmented_annotation
+            }
+            return augmented_img, new_annotations
+        return image, annotations
+
+    def auto_augment_group(self, image_group, annotations_group):
+        """ Apply AutoAugment policy to each image and its annotations.
+        """       
+        assert(len(image_group) == len(annotations_group))
+        for index in range(len(image_group)):
+            # transform a single group entry
+            image_group[index], annotations_group[index] = self.auto_augument_group_entry(
+                image_group[index], 
+                annotations_group[index]
+                )
+        return image_group, annotations_group
+\end{lstlisting}
+
+La prima delle due funzioni in Codice \ref{code:aaaugment_retinanet} applica la trasformazione ad una singola immagine. Per via del formato di input differente è stata necessaria una piccola fase di preprocessing di dati dove si normalizzavano tra 0 e 1 le posizioni delle \ac{BB}. La seconda funzione richiama la prima su gruppi di immagini. 
+Successivamente l'ultima modifica effettuata è stata intervenire sulla funzione \texttt{compute\_input\_output} della classe \texttt{Generator}. Questa funzione, in base agli argomenti dati in input alla creazione dell'oggetto, applica le dovute trasformazioni. In codice \ref{code:aaaugment_compute_input_output} è possibile vedere come è stata aggiunta la chiamata necessaria ad AutoAugment. 
+
+
+\begin{lstlisting}[caption={Funzione compute\_input\_output del generatore}, language=Python, basicstyle=\tiny,label=code:aaaugment_compute_input_output]
+    def compute_input_output(self, group):
+        """ Compute inputs and target outputs for the network.
+        """
+        # load images and annotations
+        image_group       = self.load_image_group(group)
+        annotations_group = self.load_annotations_group(group)
+        # check validity of annotations
+        image_group, annotations_group = self.filter_annotations(image_group, annotations_group, group)
+    
+        # randomly apply visual effect
+        image_group, annotations_group = self.random_visual_effect_group(image_group, annotations_group)
+    
+        # randomly transform data
+        image_group, annotations_group = self.random_transform_group(image_group, annotations_group)
+        
+        # apply auto augment
+        image_group, annotations_group = self.auto_augment_group(image_group, annotations_group)
+    
+        # perform preprocessing steps
+        image_group, annotations_group = self.preprocess_group(image_group, annotations_group)
+    
+        # compute network inputs
+        inputs = self.compute_inputs(image_group)
+    
+        # compute network targets
+        targets = self.compute_targets(image_group, annotations_group)
+    
+        return inputs, targets
+\end{lstlisting}
+
+Per RandAugment la questione è stata un po' più tediante. In Tensorflow 2.0 una libreria, fondamentale per il funzionamento di queste operazioni è stata eliminata e sostituita da una \href{https://github.com/tensorflow/addons}{libreria installabile a parte} chiamata Tensorflow Addons. 
+Usandola con le policy predefinite di AutoAugment questa libreria non causava problemi, ma una particolare sequenza di trasformazioni applicate all'immagine generata casualmente da RandAugment portava molte volte ad una terminazione inaspettata del programma. Per risolvere questo incidente di percorso è necessario applicare un flag in alcune operazioni della libreria Tensorflow Addons e ricompilarla con gli stessi toolkit Nvidia usati per compilare Tensorflow. Avendo fallito nel compito di compilare la libreria ho deciso di fare un nuovo ambiente di Anaconda con Tensorflow 1.14 ed una vecchia versione di RetinaNet. 
+Questa via apparentemente ha portato ad una soluzione funzionante, ma il tutto era incredibilmente lento. La colpa è da inputare all'utilizzo improprio di Tensorflow, le conversioni tra tensori Numpy e tensori di Tensorflow portavano via un sacco di tempo. Questo comportamento però in Tensorflow 2.0 non si nota in quanto di default è abilitata la Eager Execution, cosa che non è possibile fare con Tensorflow 1.14 in quanto richiederebbe modifiche piuttosto pesanti a RetinaNet.  
+
+La soluzione è arrivata da un utente di GitHub che ha implementato tutte le operazioni di AutoAugment (e conseguementemente RandAugment) usando Numpy e Python Image Library (PIL). La repository contenente questo codice è reperibile al seguente \href{https://github.com/poodarchu/learn_aug_for_object_detection.numpy}{link}.
+È stata quindi aggiunta una funzione che implementava la trasformazione dell'immagine, visibile in Codice \ref{code:rand_augment_function}. Seguendo l'articolo di riferimento di RandAugment è stato sufficiente selezionare $N$ operazioni in maniera casuale ed evantualmente applicarle con una probabilità $p$ casuale con una forza $M$.
+Successivamente, in maniera del tutto analoga ad AutoAugment, è bastato definire le opportune funzioni nella classe \texttt{Generator}. 
+
+\begin{lstlisting}[caption={Funzione per implementare RandAugment}, language=Python, basicstyle=\tiny,label=code:rand_augment_function]
+    def distort_image_with_rand_augment(image, bboxes, N, M):
+    """Applies randaugment policy to input image.
+    Paper: https://arxiv.org/abs/1909.13719
+    
+    Args:
+      'image': 'Tensor' of shape [height, width, 3] representing an image.
+      'N': integer, Number of transformation to apply to an image.
+      'M': integer, shared Magnitude for all augmentation operations.
+    
+    Returns:
+      A tuple containing the augmented versions of `image` and `bboxes`.
+    """
+    augmentation_hparams = {
+      "cutout_max_pad_fraction":0.75,
+      "cutout_bbox_replace_with_mean":False,
+      "cutout_const":100,
+      "translate_const":250,
+      "cutout_bbox_const":50,
+      "translate_bbox_const":120
+    }
+    replace_value = [128] * 3 
+    tf.compat.v1.logging.info('Using RandAug.')
+    available_ops = ['AutoContrast','Equalize','Solarize','SolarizeAdd','Contrast','Brightness',
+      'Sharpness','Cutout','BBox_Cutout','Rotate_BBox','TranslateX_BBox','TranslateY_BBox',
+      'ShearX_BBox','ShearY_BBox','Rotate_Only_BBoxes','ShearX_Only_BBoxes','ShearY_Only_BBoxes',
+      'TranslateX_Only_BBoxes','TranslateY_Only_BBoxes','Flip_Only_BBoxes','Solarize_Only_BBoxes',
+      'Equalize_Only_BBoxes','Cutout_Only_BBoxes']
+    #available_ops = ['BBox_Cutout', 'TranslateY_BBox']
+    for layer_num in range(N):
+      op_to_select = np.random.randint(0, len(available_ops), size=1)
+      random_magnitude = float(M) 
+      for (i, op_name) in enumerate(available_ops): 
+        prob = np.random.uniform(0.2, 0.8, 1) 
+        if i == op_to_select:
+          func = NAME_TO_FUNC[op_name]
+          args = level_to_arg(augmentation_hparams)[op_name](random_magnitude)
+          if 'prob' in inspect.getargspec(func)[0]:
+            args = tuple([prob] + list(args))
+          if 'replace' in inspect.getargspec(func)[0]:
+            assert 'replace' == inspect.getargspec(func)[0][-1]
+            args = tuple(list(args) + [replace_value])
+          if 'bboxes' not in inspect.getargspec(func)[0]:
+            func = bbox_wrapper(func)
+          image, bboxes = (lambda selected_func=func, selected_args=args: selected_func(
+                  image, bboxes, *selected_args))(func, args)
+        else:
+          image, bboxes = image, bboxes
+    return image, bboxes
+  
+\end{lstlisting}

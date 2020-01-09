@@ -124,8 +124,34 @@ Uno dei problemi a cui bisogna far fronte quando si tratta la \textit{Object Det
 Per Bootstrap si fa riferimento ad un gruppo di tecniche attraverso le quali si fa iniziare la fase di addestramento prendendo con dello sfondo. Successivamente quando si rilevano esempi di sfondo classificati erroneamente si aggiungono al processo di addestramento. Questo approccio risulta efficiente in quanto si evita di addestrare il modello su milioni di esempi di sfondi \cite{viola2001rapid, papageorgiou1998general, rowley1996human}.
 \paragraph{HNM in detector basati su deep learning}
 Recenemente modelli come Faster RCNN e \ac{YOLO} per risolvere questo problema bilanciano i pesi tra finestre con esempi negativi e positivi. Nonostante tutto però non viene risolto completamente il problema di sbilanciamento, quindi c'è stato un ritorno al \textit{bootstrap}. Un altro modo per risolvere lo sbilanciamento è l'introduzione di nuove funzioni di Loss, come ad esempio la Focal Loss in RetinaNet \cite{lin2017focal}. 
+
+
+
+
 \subsection{Dataset}
-L'insieme dei dati con cui addestrare e testare le performance dei modelli via via sviluppati nel corso del tempo ha subito un evoluzione. Costruire dataset sempre più grandi e con meno bias è sempre stato un obbiettivo principale che si ponevano i ricercatori, tutto ciò per realizzare dei benchmark che mettessero sempre di più a dura prova i nuovi modelli. Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famosi nell'ambito della computer vision, con particolare attenzione per alcuni incentrati sulla rilevazione di pedoni. 
+L'insieme dei dati con cui addestrare e testare le performance dei modelli via via sviluppati nel corso del tempo ha subito un evoluzione. Costruire dataset sempre più grandi e con meno bias è sempre stato un obbiettivo principale che si ponevano i ricercatori, tutto ciò per realizzare dei benchmark che mettessero sempre di più a dura prova i nuovi modelli. Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famosi nell'ambito della computer vision, con particolare attenzione per alcuni incentrati sulla rilevazione di pedoni. In Tabella \ref{table:dataset} è presente uno schema riassuntivo dei dataset analizzati nel proseguio.
+
+
+\begin{table}[]
+    \makebox[\textwidth]{
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        \textbf{Dataset}   & \textbf{Immagini} & \textbf{Totale BB} & \textbf{Classi} & \textbf{Risoluzione} & \textbf{Fonte}       & \textbf{Altre informazioni}                                                                                  \\ \hline
+        Mit ped            & 500/200           & ND                 & 1               & $64 \times 128$      & ND                   & È stato il primo                                                                                             \\ \hline
+        INRIA              & 1805              & ND                 & 1               & $64 \times 128$      & ND                   & \begin{tabular}[c]{@{}c@{}}Forma rudimentale di \\ Data Augmentation\end{tabular}                            \\ \hline
+        Pascal VOC (2012)  & 11540/10991       & 27450 in train     & 20              & Variabile            & Web                  & Challenge                                                                                                    \\ \hline
+        Caltech            & 124K/124K         & 350K totali        & 3               & $640 \times 480$     & Vettura in movimento & Ambiente cittadino                                                                                           \\ \hline
+        KITTI              & 194/195           & 160K totali        & 6               & $1382 \times 512$    & Vettura in movimento & 3D, moltissime vetture                                                                                       \\ \hline
+        ILSVRC             & 458K/46K          & ND                   & 200             & Variabile            & Web                  & Challenge                                                                                                    \\ \hline
+        CityPersons        & 5K                & 35K                & 4               & ND                   & Altro dataset        & \begin{tabular}[c]{@{}c@{}}\textbackslash{}ac\{BB\} con stesse proporzioni, \\ 50 città diverse\end{tabular} \\ \hline
+        MS-COCO            & 123K/40K          & 896K in train      & 91              & Variabile            & Web                  & Ottima contestualizzazione                                                                                   \\ \hline
+        OPEN IMAGES (2018) & 1,784M/125K       & 14M in train       & 600             & Variabile            & Web                  & \begin{tabular}[c]{@{}c@{}}Molte classi, molto ampio,\\  alta media di istanze per immagine\end{tabular}     \\ \hline
+        EuroCity           & 28K/19K           & 250K in totale     & 9               & $1920 \times 1024$   & Vettura in movimento & \begin{tabular}[c]{@{}c@{}}Varietà nell'ambiente, \\ qualità delle immagini\end{tabular}                     \\ \hline
+    \end{tabular}}
+    \caption{Riassunto dei dataset analizzati, dove presente lo '/' indica la suddivisione tra train e test}
+    \label{table:dataset}
+\end{table}
+
 \paragraph{MIT Ped.} Risale all'inizio del nuovo milleno ed è uno dei primi dataset che ha come scopo il riconoscimento di pedoni. Rispetto agli standard odierni risulta molto piccolo in quanto contiene circa 509 immagini usabili per l'addestramento e 200 usabili per la fase di test. \cite{papageorgiou2000trainable} 
 \paragraph{INRIA} Risalente al 2005, nasce dall'esigenza di creare un dataset dove la detection diventasse più complicata rispetto a quello fatto dal MIT \cite{dalal2005histograms}. Contiene 1805 immagini ad una risoluzione di $64 \times 128$ pixel di esseri umani. Le immagini usate per l'insieme di training sono 2478, ovvero 1239 immagini, contenenti esempi positivi, prese dal totale più le stesse immagini ma riflesse secondo l'asse delle $y$.
 
@@ -177,35 +203,102 @@ Andando più nello specifico ci si trova davanti ad un dataset che nella sua ult
 \end{figure}
 \paragraph{Open Images} 
 \ac{OID} \cite{krasin2017openimages}, nella versione 5, è un dataset composto da $9.2$ milioni di immagini. Ai giorni d'oggi rappresenta una delle sfide più interessanti insieme a \ac{ILSVRC} e \ac{MSCOCO}. Come per gli altri dataset anche questo si adatta a più task poiché le annotazioni sono state effettuate a livello di singola immagine, di \textit{object detection}, segmentazione e interazioni tra oggetti. 
-Analizzando l'aspetto riguardante la rilevazione di oggetti ha ancora più classi rispetto a \ac{ILSVRC} in quanto per la si arriva a $600$ differenti label su $1.9$ milioni di immagini con \ac{BB} realizzate per la maggiorparte da annotatori professionali interni a Google. In aggiunta i contesti e le ambientazioni in cui sono s   tate catturate le immagini sono molto variegati.
-\paragraph{EuroCity}  EuroCity è un dataset proposto da Braun \textit{et al. } nel 2019 \cite{braun2018eurocity}. Le immagini sono state acquisite da un veicolo in movimento in $31$ diverse città europee appartenentei $12$ differenti stati.
+Analizzando l'aspetto riguardante la rilevazione di oggetti ha ancora più classi rispetto a \ac{ILSVRC} in quanto per la si arriva a $600$ differenti label su $1.9$ milioni di immagini con \ac{BB} realizzate per la maggiorparte da annotatori professionali interni a Google. In aggiunta i contesti e le ambientazioni in cui sono state catturate le immagini sono molto variegati.
+\paragraph{EuroCity}  EuroCity è un dataset proposto da Braun \textit{et al. } nel 2019 \cite{braun2018eurocity}. Le immagini sono state acquisite da un veicolo in movimento in $31$ diverse città europee appartenentei $12$ differenti stati. L'arco temporale attraversa le quattro stagioni, ed anche le condizioni metereologiche, fatta eccezione per forte pioggia e tempeste di neve, sono state tutte acquisite. 
 La risoluzione è di $1920 \times 1024$ con un framerate di $20$ immagini al secondo. Una particolarità delle immagini acquisite da queste telecamere è lo spazio colore che arriva a $16$ bit. Quest'alta gamma dinamica si traduce in una più alta qualità dei fotogrammi in condizioni di luce non ottimale, come può essere un controsole o una notturna. 
 Per ogni città in media sono state catturate $1.7$ ore di video e le immagini sono state campionate ogni $4$ secondi ($80$ frame). Questo porta ad avere una ripetizione minore di pedoni o oggetti uguali, soprattutto in condizioni trafficate.
+Le classi in questo dataset si differenziano in base al veicolo su cui si trovano i pedoni. Sono stati annotati gli esseri umani a piedi, sulle moto, scooter, tricicli, sedie a rotelle e buggy. 
+L'occlusione è stata gestita decidendo di annotare l'oggetto nella sua totalità dando una misura spannometrica per le dimensioni della \ac{BB}. 
+Riguardo i veicoli invece sono state fatte \ac{BB} separate per il veicolo e la persona al di sopra. 
+C'è anche una parte di persone scartate che sono quelle che hanno un'altezza inferiore a 20 pixels. 
+
 
 \subsection{Metriche}
 \section{Detector basati su metodi tradizionali}
 \label{sec:traditional_method}
-\paragraph{VJ}
-\paragraph{HOG}
-\paragraph{DPM}
-\section{Detector basati su Deep learning}
+
+\paragraph{Viola Jones Detectors}
+Nel 2001 P. Viola e M. Jones \cite{viola2001rapid, viola2004robust} sono riusciti a realizzare un modello, chiamato \ac{VJ} Detector, capace di riconoscere volti umani in condizioni non vincolate. L'hardware che fu usato era al passo con i tempi, si parla infatti di un processore Intel Pentium III, ed i risultati erano impressionanti. Molti altri algoritmi di rilevazione di volti infatti giravano decine, se non centinaia, di volte più lenti rispetto ad \ac{VJ} e l'accuratezza era del tutto paragonabile. 
+
+L'approccio usato dai due ricercatori in fase di sviluppo è anche uno dei più basilari, ovvero la finestra scorrevole. Nonostante il compito fosse molto al di la della portata dell'hardware dei tempi questo detector tramite alcune tecniche è riuscito a migliorare drasticamente la sua efficienza in termini di velocità e accuratezza. 
+La prima di queste tecniche è un algoritmo chiamato \textit{integral image} che serve a computare efficentemente la somma di valori in un sottoinsieme rettangolare di una griglia. In questo modo si è riuscito a velocizzare le operazioni di filtraggio e convoluzione. 
+Il secondo mattoncino con cui è stato costruito \ac{VJ} riguarda la scelta delle feature delle immagini. Le feature venivano estratte grazie alla \textit{Wavelet Haar} ed invece che selezionare manualmente i filtri è stato usato Adaboost \cite{freund1999short}. 
+Infine la rilevazione veniva effettuata a cascata, in questo modo si riusciva a ridurre lo spreco di risorse evitando di passare più tempo del dovuto su porzioni di immagine dove l'algoritmo aveva una ragionevole certezza fossero sfondo. 
+\paragraph{Histogram of Oriented Gradients}
+\ac{HOG} è un descrittore di feature per immagini presentato nel 2005 da N. Dalal e B. Triggs \cite{dalal2005histograms}. Il suo scopo era quindi l'estrazione di informazioni utili da un immagine, cercando di scartare il più possibile informazioni inutili. La motivazione per la realizzazione è stata la rilevazione di pedoni, tuttavia è facilmente adattabile alla rilevazione di altre classi. 
+L'idea dietro queste feature si basa sul gradiente secondo una direzione. Possiamo spiegarlo intuitivamente come la variazione di colore che si ha andando in una determinata direzione di una regione rettangolare dell'immagine. 
+L'estrazione procede dividendo l'immagine in celle non disgiunte e per ognuna di esse osservando i pixel che la compongono si calcola un istogramma monodimensionale dei gradienti secondo le varie direzioni. Prendendo tutti gli istogrammi derivanti dalle celle si ottiene una rappresentazione sottoforma di feature \ac{HOG} dell'immagine. In Figura \ref{fig:hog} è possibile vedere un'esempio di estrazione di questo tipo di feature.
+\begin{figure}[]
+    \centering
+    \subfloat[]{
+        \includegraphics[width=.4\textwidth]{images/dog.jpg}
+    }
+    \subfloat[]{
+        \includegraphics[width=.4\textwidth]{images/dog.png}
+    }
+    \caption{Esempio di estrazione feature HOG, a sinistra immagine originale, a destra dopo estrazione delle feature} 
+    \label{fig:hog} 
+\end{figure}
+
+\paragraph{Deformable Part-based Model} 
+La realizzazione di \ac{DPM} parte da P. Felzenszwalb nel 2005 come estensione di \ac{HOG} \cite{felzenszwalb2008discriminatively}. Questo detector è di tipo \textit{"Divide et Impera"} in quanto la fase di addestramento può semplicemente essere considerata come l'apprendere la decomposizione di un oggetto in più parti, mentre la fase di inferenza può essere vista intuitivamente come il rilevamento delle parti di un oggetto. 
+Successivamente R. Girshick ha esteso questo modello, detto \textit{star-model}, ad un modello mistura \cite{felzenszwalb2010cascade, felzenszwalb2009object, girshick2011object, girshick2012rigid}. In questo modo si è riusciti ad applicare \ac{DPM} a casi reali. Per molti anni è stato considerato un punto di riferimento in quanto vincitore della sfida \ac{VOC} dal 2007 al 2009.
+
+\ac{DPM} è formato da un filtro posizionato alla radice, più tanti altri filtri sottostanti adibiti al riconoscimento delle varie parti che formano un oggetto. Nel modello mistura di Girshick, invece che specificare manualmente cosa dovessero rilevare questi sottofiltri, venivano implementati come variabili latenti e come tali avevano bisogno di una fase di apprendimento supervisionato. 
+\section{Detector basati su Deep Learning}
 \label{sec:deep_learning_obj}
+Come è possibile vedere da Figura \ref{fig:history_object_detection} gli anni tra il $2012$ ed il $2014$ hanno segnato un punto di svolta nella \textit{object detection} grazie a nuovi modelli basati su tecniche di apprendimento profondo. L'era attuale in cui il deep learning ha preso il sopravvento vede una diramazione nelle tecniche sviluppate per la rilevazione degli oggetti, nonostante ciò i due rami sono complementari e sviluppati in parallelo in quanto oggetto di studi recenti. La prima diramazione è quella dei detector \textit{One Stage}, questi detector ottengono prestazioni in inferenza molto elevate, a discapito però di accuratezza e e precisione nella localizzazione più scarse rispetto ai detector \textit{Two Stage}, che però sono più lenti in fase di inferenza. 
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/architectures_one_two_stage.pdf}
+    \caption{In (a) la struttura di un detector a doppio stadio, in (b) la struttura di un detector a singolo stadio \cite{DBLP:journals/corr/abs-1907-09408}}
+    \label{fig:detector_structure}
+\end{figure}
 \subsection{Estrattori di feature}
 \label{sec:feature_extractor}
+Nell'era dell'apprendimento profondo anche gli estrattori di feature si sono evoluti. Vengono chiamati in gergo \textit{Backbone Network} e sono reti neurali che prendono in input un'immagine e ne restituiscono le feature che poi andranno in input al modello che si occuperà della rilevazione di oggetti. 
+
+Molte delle reti di backbone usate attualmente sono reti create per la classificazione di immagine, ma senza l'ultimo strato usato come classificatore. Come per molti compiti anche per le estrazioni delle feature possiamo effettuare delle scelte che ci portano ad avere più accuratezza, ma minore velocità di esecuzione o viceversa. 
+Reti come ResNet\cite{viola2004robust}, ResNeXt \cite{he2015spatial}, AmoebaNet \cite{girshick2015fast} sono profonde e hanno un elevato grado di connessione tra i vari neuroni, risultano quindi generalmente più accurate, ma conseguentemente avere una struttura così densa porta ad avere effetti negativi sulle prestazioni. 
+Molte volte però si può sacrificare un po' di accuratezza per migliorare però la velocità, un ambito ad esempio è quello dei dispotivi portatili come possono essere gli smartphone. Reti come MobileNet \cite{ren2015faster}, ShuffleNet \cite{redmon2016you}, Squeezenet \cite{liu2016ssd} o Xception \cite{lin2017feature} sono dei backbone leggeri che possono essere usati per questo scopo. 
+
+\subsection{Two Stage Detector}
+\label{subsec:two_stage_detector}
+Uno schema basico dell'architettura di un rilevatore a doppio stadio è mostrata in Figura \ref{fig:detector_structure} (a). I cubi gialli sono strati convoluzionali, chiamati blocchi, presenti nella rete di backbone. Essendo nella rete di backbone da questi blocchi si otterà una mappa delle feature, che verrà passata al \ac{ROI} pooling layer per ottenere le feature definitive. 
+Le proprietà estratte a quest'ultimo passaggio, nel caso dei detector a doppio stadio, passano generalmente per una \ac{RPN} che propone delle regioni in cui potenzialmente potrebbe essere contenuto un candidato alla rilevazione. L'output della \ac{RPN} a questo punto andrà come input in dei layer convoluzionali aggiuntivi (i cubi blu di Figura \ref{fig:detector_structure}) per la classificazione.
+Vedremo qui di seguito alcuni modelli a doppio stadio. In particolare in Sezione \ref{sec:retinanet} vedremo in dettaglio RetinaNet, ovvero la rete neurale usata durante il lavoro di ricerca di questa tesi.  
+\paragraph{R-CNN} 
+Girshick nel 2014 propone il primo detector a doppio stadio chiamato R-CNN \cite{girshick2014rich}. Il modello è composto da quattro moduli. Il primo modulo genera le cosiddette region proposal, ovvero delle regioni che potenzialmente possono contenere oggetti. Il secondo modulo, partendo da queste regioni genera dei vettori di feature di dimensione fissata (4096 elementi) usando cinque strati convoluzionali e due completamente connessi. Un problema con cui si sono scontrati gli autori in questa fase è stata che l'input di una \ac{CNN} è di dimensione fissata, mentre gli oggetti possono avere dimensioni e proporzioni differenti. È stato quindi fissato l'input della \ac{CNN} come una regione di dimensione $227 \times 227$ e per far combaciare le regioni proposte del primo modulo sono state applicate trasformazioni.
+La parte di classificazione è invece appannaggio del terzo modulo, ovvero  un insieme di \ac{SVM}. Le \ac{BB} vengono infine generate tramite regressione dal quarto ed ultimo modulo. Tra le \ac{CNN} i parametri sono condivisi, mentre le \ac{SVM} usate per la classificazione sono totalmente indipendenti l'una dall'altra.
+
+La fase di addestramento di R-CNN si fa su ogni singolo componente in maniera separata. Come prima cosa viene realizzata una fase di pre-addestramento, seguita da una fase di addestramento fine. Dopodiché si vanno ad addestrare in maniera separata i classificatori \ac{SVM} e gli strati di regressione per generare le \ac{BB}.
+Riguardo la classificazione un aspetto interessante di cui tenere conto è l'applicazione della \ac{IoU} o indice di Jaccard, ovvero un valore che indica la sovrapposizione tra due regioni. Varia tra 0 e 1, con 0 quando non c'è alcuna sovrapposizione ed 1 quando la sovrapposizione è totale. La \ac{IoU} si calcola prendendo in considerazione la \ac{BB} \textit{vera} e la \ac{BB} predetta in fase di inferenza. In particolare è definita come il rapporto tra l'area di intersezione delle due regioni e l'unione delle due aree. 
+
+\paragraph{Spatial Pyramid Pooling Networks} In R-CNN uno dei problemi era nel secondo modulo quando le \ac{CNN} richiedevano un input di dimensione fissata. Con \ac{SPPNet} \cite{he2015spatial} si risolve il problema introducendo un layer di pooling piramidale che permette alle \ac{CNN} di lavorare anche con input di dimensione differente, senza necessità di applicare trasformazioni alla regione.
+Con l'uso di questo nuovo strato le feature possono essere estratte solamente una volta e dall'intera immagine, il che porta \ac{SPPNet} ad essere circa 20 volte più veloce di R-CNN, senza perdere in accuratezza. 
+Nonostante ciò sono presenti lo stesso alcune problematiche infatti come per R-CNN la fase di addestramento è ancora realizzata in più passaggi.
+\paragraph{Fast R-CNN}
+Fast R-CNN, proposta sempre da R. Girshick, \cite{girshick2015fast} è una versione migliorata di R-CNN. Uno dei grandi difetti di R-CNN era la velocità in quanto per ogni regione candidata era necessario un passaggio sulle \ac{CNN} per estrarre le feature. 
+Con Fast R-CNN le feature vengono estratte in un unico momento e dall'intera immagine e successivamente passate ad  un \ac{ROI} pooling layer che restituisce in uscita vettori di dimensione fissata da passare agli strati di classificazione e regressione. 
+A differenza di R-CNN e \ac{SPPNet} l'addestramento è composto da una sola fase, e questo è reso possibile da una misura di loss comune a tutta la struttura. 
+Un altro miglioramento rispetto a R-CNN, e che accomuna questo detector a \ac{SPPNet}, è che vengono preservate le informazioni spaziali delle regioni candidate in quanto non c'è più necessità di avere input di dimensione fissa per le \ac{CNN}. 
+
+Tramite queste migliorie si ottengono vantaggi notevoli rispetto a R-CNN, sia in fase di training che di inferenza. L'addestramento da 84 ore passa a circa 9.5 ore, mentre si ha un incremento di prestazioni in fase di inferenza che arriva fino a 223 volte. 
+\paragraph{Faster R-CNN}
+Tre mesi dopo la presentazione di Fast R-CNN venne presentata un'ulteriore versione migliorata chiamata Faster R-CNN \cite{ren2015faster}. Il collo di bottiglia di Fast R-CNN è la generazione delle regioni candidate a contenere oggetti. Con Faster R-CNN viene risolto con l'utilizzo di una \ac{RPN}, ovvero una rete convoluzionale in grado di generare efficentemente regioni di diverse dimensioni e proporzioni. Viene quindi scartata la parte iniziale di Fast R-CNN e sostituita con questa nuova \ac{RPN} che in poche parole dice a Fast R-CNN \textit{dove guarare}.
+
+L'input di una \ac{RPN} è un'intera immagine e l'ouput sono regioni rettangolari con un indice di appartenza ad una determinata classe. 
+In più in Faster R-CNN vengono utilizzate anche le Anchor Boxes 
+\paragraph{FPN}
 \subsection{One Stage Detector}
 \label{subsec:one_stage_detector}
+Lo schema architetturale di un detector a singolo stadio è visibile in Figura \ref{fig:detector_structure} (b). Inizialmente è sempre presente un backbone che servirà ad estrarre le feature dall'immagine in input, però a differenza di \ref{subsec:two_stage_detector} non è più presente la \ac{RPN}, bensì dal \ac{ROI} pooling layer si passa direttamente a dei layer convoluzionali che si occuperanno di rilevare e classificare l'oggetto di interesse. Come detto all'inizio della Sezione \ref{sec:deep_learning_obj} la struttura dei modelli a singolo stadio li porta ad avere una accuratezza ed una precisione nella localizzazione minore rispetto alla controparte a doppio stadio. Una struttura più semplice dal punto di vista degli strati però porta ad avere maggiore velocità di elaborazione. Di seguito vedremo alcuni dei più famosi modelli a singolo stadio. 
 \paragraph{YOLO}
 \paragraph{SSD}
 \paragraph{DSSD}
 \paragraph{M2DET}
 \paragraph{RefineNet}
-\subsection{Two Stage Detector}
-\label{subsec:two_stage_detector}
-\paragraph{RCNN}
-\paragraph{SPNNET}
-\paragraph{FASTRCNN}
-\paragraph{FASTERRCNN}
-\paragraph{FPN}
-\paragraph{MASKRCNN}
+
 \section{RetinaNet}
+\label{sec:retinanet}
 \subsection{Focal Loss}
