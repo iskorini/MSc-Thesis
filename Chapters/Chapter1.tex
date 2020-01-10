@@ -288,17 +288,131 @@ Tramite queste migliorie si ottengono vantaggi notevoli rispetto a R-CNN, sia in
 Tre mesi dopo la presentazione di Fast R-CNN venne presentata un'ulteriore versione migliorata chiamata Faster R-CNN \cite{ren2015faster}. Il collo di bottiglia di Fast R-CNN è la generazione delle regioni candidate a contenere oggetti. Con Faster R-CNN viene risolto con l'utilizzo di una \ac{RPN}, ovvero una rete convoluzionale in grado di generare efficentemente regioni di diverse dimensioni e proporzioni. Viene quindi scartata la parte iniziale di Fast R-CNN e sostituita con questa nuova \ac{RPN} che in poche parole dice a Fast R-CNN \textit{dove guarare}.
 
 L'input di una \ac{RPN} è un'intera immagine e l'ouput sono regioni rettangolari con un indice di appartenza ad una determinata classe. 
-In più in Faster R-CNN vengono utilizzate anche le Anchor Boxes 
+In più in Faster R-CNN vengono utilizzate anche le Anchor Boxes, che semplificano la rilevazione di oggetti con dimensioni differenti. 
 \paragraph{FPN}
+Nel 2017 Lin \textit{et al.} hanno proposto \ac{FPN} \cite{lin2017feature} sulla base di Faster R-CNN. Prima di \ac{FPN} l'idea era di eseguire la rilevazione di oggetti basandosi solamente sull'output dell'ultimo livello dell'estrattore di feature. Tuttavia però alcune informazioni contenute nei layer più profondi della \ac{CNN} possono essere utili, per questo motivo è stata fatta un'architettura top down con connessioni laterali sfruttando la piramidalità intrinseca delle \ac{CNN}. Ora \ac{FPN} è utilizzato in molti modelli, tra cui anche RetinaNet. 
 \subsection{One Stage Detector}
 \label{subsec:one_stage_detector}
 Lo schema architetturale di un detector a singolo stadio è visibile in Figura \ref{fig:detector_structure} (b). Inizialmente è sempre presente un backbone che servirà ad estrarre le feature dall'immagine in input, però a differenza di \ref{subsec:two_stage_detector} non è più presente la \ac{RPN}, bensì dal \ac{ROI} pooling layer si passa direttamente a dei layer convoluzionali che si occuperanno di rilevare e classificare l'oggetto di interesse. Come detto all'inizio della Sezione \ref{sec:deep_learning_obj} la struttura dei modelli a singolo stadio li porta ad avere una accuratezza ed una precisione nella localizzazione minore rispetto alla controparte a doppio stadio. Una struttura più semplice dal punto di vista degli strati però porta ad avere maggiore velocità di elaborazione. Di seguito vedremo alcuni dei più famosi modelli a singolo stadio. 
 \paragraph{YOLO}
-\paragraph{SSD}
-\paragraph{DSSD}
-\paragraph{M2DET}
-\paragraph{RefineNet}
+Redmon \textit{et al.} proposero un nuovo detector chiamato \ac{YOLO} con lo scopo di effettuare rilevazioni in tempo reale su video tratti da webcam \cite{redmon2016you}. 
+Il flusso di \ac{YOLO} inizialmente prevede la divisione dell'immagine in input tramite una griglia di dimensione $S \times S$. 
+Ogni elemento della griglia è responsabile di predirre $B$ \ac{BB} ed i loro punteggi di confidenza. Questo punteggio viene calcolato per rispecchiare la confidenza che ha il modello nell'affermare che una certa \ac{BB} contenga un oggetto e per affermare anche quanto è precisa questa predizione. Viene infatti calcolato come $Pr(Oggetto) * IOU^{thruth}_{pred}$.
+Quindi la struttura di una \ac{BB} è rappresentabile come una quintupla $(x, y, w, h, confidenza)$ dove i primi quattro valori rappresentano le coordinate nello spazio, e l'ultimo la confidenza. 
+Il singolo elemento della griglia inoltre calcola un vettore $C$ dimensionale che rappresenta la probabilità condizionale $P(Classe | Oggetto)$ per ogni classe. In Figura \ref{fig:yolo_structure} è possibile vedere come è strutturata la rete nella sua totalità. 
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/net_yolo.pdf}
+    \caption{Struttura di \ac{YOLO} \cite{redmon2016you}}
+    \label{fig:yolo_structure}
+\end{figure}
+\paragraph{YOLO V2}
+\ac{YOLO} V2 come intuibile dal nome è la seconda versione del detector \ac{YOLO} che lo migliora in alcuni aspetti utilizzando tecniche prese da lavori precendenti \cite{redmon2017yolo9000}.
+Innanzitutto è stata adottata la \textit{Batch Normalization} davanti ad ogni layer convoluzionale \cite{ioffe2015batch}. Questi strati di regolarizzazione favoriscono la fase 
+di training rendendola più veloce. Inoltre si ottiene un miglioramento del $2\%$ sulla \ac{map}.
+Il secondo miglioramento è stato aumentare la risoluzione dell'input del classificatore. Nella prima versione la risoluzione è di $224 \times 224$, che viene incrementataa $448 \times 448$ quando si effettua la rilevazione.
+In \ac{YOLO} V2 viene prima effettuato un fine tuning di 10 epoche del classificatore usando come risoluzione $448 \times 448$.
+La prima versione di \ac{YOLO} per predirre la posizione delle \ac{BB} usava degli strati totalmente connessi posizionati dopo i layer convoluzionali. Ora invece in \ac{YOLO} V2 viene usato l'approccio delle \textit{Anchor Boxes} rimuovendo quindi questi ultimi layer insieme al layer di pooling. 
+In questo modo si mantiene una feature map ad alta risoluzione adatta allo scopo. È stata modificata anche la rete per far si che operi alla risoluzione di $416 \times 416$. Il numero $416$ è stato scelto per via del fatto che si possa mappare con feature $13 \times 13$, ed avendo un numero di pixel dispari si ha un unico pixel centrale. 
+
+Le predizioni riguardanti dimensioni e proporzioni delle \ac{BB} fino ad ora veniva fatto in maniera empirica, anche in detector come Fast R-CNN. La seconda versione di \ac{YOLO} usa l'algoritmo di clustering \textit{K-Means} sull'insieme dei dati per l'addestramento per ottenere delle buone probabilità a priori.  La particolarità è che non viene usata la distanza euclidea, ma una misura basata sull'\ac{IoU}. 
+Un altro aspetto migliorato riguarda le feature. L'estrazione come detto in precedenza prevede finestre più piccole di dimensione $13 \times 13$, questo porta ad un miglioramento nella rilevazione di oggetti piccoli. È presente anche un layer che concatena feature a dimensione $26 \times 26$ con quelle a $13 \times 13$ su canali differenti. 
+Il training ora viene fatto usando una risoluzione di input differente che varia di 10 batch in 10 batch. Il modello effettua una riduzione di un fattore $32$ dalla risoluzione standard di $416 \times 416$ ad una feature map di dimensione $13 \times 13$. Per mantenere questa strutura quindi la risoluzione di input varia da minimo di $320 \times 320$ fino ad un massimo di $608 \times 608$ attraversando esclusivamente i multipli di $32$. Da \ac{YOLO} V2 deriva anche \ac{YOLO} 9000 che riesce a rilevare, a discapito di un degrado delle performance, fino a 9000 oggetti.
+\paragraph{YOLO V3} 
+\ac{YOLO} V3 è l'ultima versione, ed ottenuta  tramite miglioramenti dalla V2 \cite{redmon2018yolov3}. La prima miglioria effettuata è sulla predizione dei label, in \ac{YOLO} V3 è possibile assegnare ad una \ac{BB} più classi. Non si usa più un classificatore \textit{softmax}, bensì un classificatore logistico coadiuvato dalla loss \textit{cross-entropy}.
+
+All'estrattore di feature sono stati aggiunti alcuni layer convoluzionali che permettono di predirre \ac{BB} con 3 scale differenti. L'ultimo di questi layer restituisce in output un tensore 3d che rappresenta la predizione in termini di coordinate della \ac{BB}, misura di confidenza e predizioni delle classi. Gli esperimenti effettuati dagli autori sono stati fatti sul dataset \ac{MSCOCO} e sono state predette 3 \ac{BB} ad ogni scala differente, perciò il tensore di output è di dimensione $N \times N \times [3 \cdot (4 + 1 + 80)]$, dove l'ultima dimensione è strutturata in questo modo in quanto le scale sono 3 differenti, per ogni \ac{BB} ci sono 4 coordinate, più 1 misura di confidenza, più $80$ valori di probabilità sulle classi. 
+Terza novità è la rete di backbone, che cambia passando a \textit{Darknet-53}
+\paragraph{SSD} 
+\ac{SSD} \cite{liu2016ssd} è detector basato su una rete neurale convoluzionale che produce un insieme di dimensione fissata composto da \ac{BB} e indici di confidenza per indicare la presenza o meno di oggetti al loro interno. Infine è presente una fase di \ac{NMS} per produrre le rilevazioni finali. 
+
+La rete è divisa fondamentalmente in due parti, la parte iniziale è un'architettura standard usata per la classificazione di immagini ma troncata in fondo in maniera da rimuovere gli ultimi layer che si usano per la classificazione. Successivamente è presente una struttura ausiliaria che si divide a sua volta in altre tre fasi:
+\begin{itemize}
+    \item Feature multi scala: alla fine della rete troncata vengono aggiunti una serie di layer convoluzionali che via via diminuiscono in dimensione e perciò permettono di effettuare rilevazioni su scale multiple. 
+    \item Predittori convoluzionali: Ogni layer aggiunto alla fase precedente produce un insieme fisso di predizioni usando un gruppo di filtri convoluzionali. Considerando un layer con dimensione $m \times n$ a $p$ canali abbiamo un filtro di dimensione $3 \times 3 \times p$.
+    \item \ac{BB} di default: è un approccio simile a quanto già visto con le \textit{Anchor Boxes}, tuttavia sono applicate a diverse mappe di feature a diverse risoluzioni. 
+\end{itemize}
+Durante l'addestramento di \ac{SSD} si cerca di far combaciare il più possibile le \ac{BB} di default con le \ac{BB} che rappresentano la \textit{ground truth}. Per fare ciò bisogna determinare quale \ac{BB} di default ha maggior intersezione con le \ac{BB} rappresentanti la verità. Questo si fa attraverso l'indice di Jaccard (o \ac{IoU}) e prendendo quelle \ac{BB} di default con gli indici maggiori. 
+Dopo questa fase di matching delle \ac{BB} ci sono molte predizioni negativi che introducono sbilanciamento tra esempi positivi e negativi in fase di training, perciò si adotta una tecnica di \ac{HNM} ordinando gli esempi negativi secondo il loro livello di confidenza e prendendo solo i più alti. In questo modo si riesce a ridurre il rapporto tra esempi negativi e positivi a circa 3 su 1.
+\paragraph{Deconvolutional SSD} 
+\ac{DSSD} \cite{fu2017dssd} è una versione modificata di \ac{SSD} che aggiunge un modulo di predizione e di deconvoluzione, oltre ad usare ResNet-101 come backbone. In Figura \ref{fig:ssd_architectures} è possibile vedere un confronto delle due architetture.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/architecture_ssd.pdf}
+    \caption{Architetture di SSD e DSSD. In blu i layer di SSD, in rosso quelli di DSSD.}
+    \label{fig:ssd_architectures}
+\end{figure}
+I moduli di predizione aggiunti via via nel corso della computazione servono a rilevare oggetti di varie dimensioni e proporzioni, mentre i layer di deconvoluzione portano ad avere delle feature più rappresentative.
+\paragraph{M2DET} \cite{zhao2019m2det}
+Nasce per andare incontro all'esigenza di rilevare oggetti uguali, ma con dimensioni differenti. Come si può vedere in Figura \ref{fig:m2det_architectures} dopo la rete di backbone per l'estrazione delle feature è presente una \ac{MLFPN} composta a sua volta di tre moduli:
+\begin{itemize}
+    \item \ac{FFM}: serve ad fondere le feature provenienti da livelli diversi, usano layer convoluzionali di dimensione $1 \times 1$ per comprimere i canali di input e aggregare le feature map. 
+    \item \ac{TUM}: genera un gruppo di feature multi scala. È formato da una serie di layer convoluzionali di dimensione $3 \times 3$ con stride $2$. 
+    \item \ac{SFAM}: aggrega le feature generate da \ac{TUM} in strutture piramidali tramite concatenazione.
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/pipeline_m2det.pdf}
+    \caption{Struttura di m2det \cite{zhao2019m2det}}
+    \label{fig:m2det_architectures}
+\end{figure}
 
 \section{RetinaNet}
 \label{sec:retinanet}
+Il trade-off tra precisione e velocità è sempre stato un punto cruciale che ha determinato la scelta tra detector a singolo stadio ed a doppio stadio. Con RetinaNet \cite{lin2017focal} si tenta di risolvere questo problema. Secondo i ricercatori è da imputare al forte sbilanciamento che si incontra in fase di training tra esempi di sfondo ed esempi di oggetti. Quindi è stata introdotta una versione modificata della classica \textit{cross-entropy} loss chiamata \textit{Focal Loss} che migliora la situazione. 
 \subsection{Focal Loss}
+\label{subsec:focal_loss}
+Prima di introdurre la \textit{Focal Loss} è necessario ricordare la forma della \textit{Cross-Entropy} per problemi di classificazione binaria:
+$$\textrm{CE}(p,y) = \begin{cases} -\log(p) &\text{se $y = 1$}\\
+-\log (1 - p) &\text{altrimenti.}\end{cases}$$ con $y \in \{\pm 1 \}$ che specifica la classe di \textit{ground truth} e $p$ valore di probabilità per la classe con $y=1$.
+Per comodità si definisce un'indice $p_t$ che indica se un esempio è classificato bene o meno:
+$$p_t = \begin{cases} p &\text{se $y = 1$}\\ 1 - p &\text{altrimenti,}\end{cases}$$
+un valore di $p_t$ superiore a $0.5$ indica che l'esempio è stato classificato correttamente, viceversa indica un errore nella classificazione. Con $p_t$ è poi possibile riscrivere $\textrm{CE}(p, y) = \textrm{CE}(p_t) = -log(p_t)$. In Figura \ref{fig:focal_loss} la curva blu rappresenta la \textit{Cross Entropy} ed è possibile notare una proprietà riguardante gli esempi considerati facili da classificare, ovvero quelli con un valore $p_t$ superiore a 0.5. Come è possibile vedere la loss di questi esempi ha comunque un valore elevato, nonostante siano considerati facili. Quindi sommando questa serie di valori si ottiene una loss comunque alta che non permette di concentrarsi sull'addestramento degli esempi considerati positivi e dare minor peso agli esempi negativi quali lo sfondo. 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/loss.pdf}
+    \caption{Focal Loss al variare di $\gamma$}
+    \label{fig:focal_loss}
+\end{figure}
+Questo forte sbilanciamento tra sfondo e oggetti è di circa $1$ a $10000$ e per evitare effetti disastrosi sulla funzione di loss i ricercatori hanno cercato innanzitutto di bilanciare la \textit{Cross Entropy} con un fattore $\alpha \in [0, 1]$ per la classe $1$ e $1 - \alpha$ per la classe $-1$. Per comodità, analogamente a $p_t$ è possibile definire anche $\alpha_t$ come:
+$$\alpha_t = \begin{cases} \alpha &\text{se $y = 1$} \\ 1 - \alpha &\text{altrimenti}\end{cases}$$ 
+Quindi partendo da $\alpha_t$ è possibile definire la nuova \textit{Cross Entropy} bilanciata $\textrm{CE}_b(p_t)=-\alpha_t log(p_t)$. 
+
+Con il termine $\alpha$ si è riusciti quindi a bilanciare gli esempi negativi da quelli positivi, però rimane il problema di bilanciare tra esempi la cui detection è facile o difficile, ovvero quelli per cui abbiamo un valore $p_t$ elevato o basso. Lo scopo quindi è dare poca rilevanza agli esempi facilmente classificabili e molta rilevanza a quelli difficilmente classificabili. Si aggiunge quindi alla \textit{Cross Entropy} un nuovo termine $(1-p_t)^\gamma$ con $\gamma \geq 0$ ottenendo una nuova funzione di loss detta \textit{Focal Loss}:
+$$\textrm{FL}(p_t) = -(1-p_t)^\gamma log(p_t)$$.
+Realizzando un'analisi di questa funzione possiamo affermare che avendo un esempio classificato male ($p_t < 0.5$), il fattore modulativo $(1-p_t)^\gamma$ è vicino a $1$ e la loss rimane più o meno invariata, mentre più $p_t$ tende ad $1$ e più il fattore modulativo sarà vicino a $0$, rendendo così la loss per gli esempi classificati bene meno efficace.
+Possiamo inoltre immaginare $\gamma$ come un parametro che permette di gestire questa riduzione di efficacia. Ponendo $\gamma = 0$ ci si riconduce alla \textit{Cross Entropy}, mentre più si aumenta e più si ottiene la riduzione di efficacia per gli esempi classificati bene. 
+
+Unendo la \textit{Focal Loss} e la \textit{Cross Entropy} loss bilanciata si ottiene la forma di \textit{Focal Loss} utilizzata all'interno di RetinaNet:
+$$\textrm{FL}(p_t) = \alpha_t(1-p_t)^\gamma log(p_t)$$
+\subsection{Struttura del detector}
+\label{subsec:retinanet_structure}
+RetinaNet è composta da tre sottoreti, la prima è il backbone, le altre due sono una rete convoluzionale adibita alla classificazione e l'ultima una rete convoluzionale per la regressione sulle \ac{BB}. In Figura \ref{fig:retinanet_structure} è possibile vedere questa struttura appena descritta.
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/retinanet_net.pdf}
+    \caption{Struttura di RetinaNet}
+    \label{fig:retinanet_structure}
+\end{figure}
+Descriveremo di seguito le componenti del modello.
+\paragraph{Feature Pyramid Network Backbone}
+Una parte del backbone di RetinaNet è una \ac{FPN} \cite{lin2017feature} che costruisce una struttura di feature piramidali a partire da un'immagine in input. Ogni livello della piramide può essere utilizzato per rilevare oggetti con dimensioni differenti. 
+La \ac{FPN} utilizzata è stata costruita al di sopra di una architettura ResNet \cite{he2016deep}. È stata quindi costruita una struttura prendendo i livelli che vanno da $P_3$ a $P_7$ tale per cui il livello $P_l$ con $l \in [3, 7]$ ha una risoluzione minore di un fattore $2^l$ rispetto all'input. Tutti i livelli hanno $C=256$ canali. Inoltre a differenza di \cite{lin2017feature} i livelli che vanno da $P_3$ a $P_5$ sono calcolati direttamente a partire dai corrispondenti livelli $C_3, C_4$ e $C_5$ di ResNet. Riguardo $P_6$ è ottenuto tramite un layer convoluzionale con filtri $3 \times 3$ e stride $2$ da $C_5$. $P_7$ è ottenuto applicando ReLU alla stessa operazione effettuata per ottenere $P_6$, ma applicata su $C_6$.
+\paragraph{Anchor}
+Le \textit{Anchor Boxes} sono simili a quelle utilizzate in \cite{lin2017feature}. Hanno un'area che può variare da $32 \times 32$ a $512 \times 512$ rispettivamente sui livelli della piramide delle feature che vanno da $P_3$ a $P_7$. Come in [articolo 20] ogni livello della piramide usa \textit{Anchor Boxes} di tre differenti proporzioni ($1:2, 1:1, 2:1$). Inoltre per aumentare la copertura ad ogni livello vengono aggiunte \textit{Anchor Boxes} che hanno dimensioni scalate di $2^\frac{1}{3}$ e $2^\frac{2}{3}$ rispetto alle originali. Ogni layer della piramide ha quindi $A=9$ \textit{Anchor Boxes}, e per ognuna di esse si associano due vettori 
+\begin{itemize}
+    \item un vettore one-hot di dimensione $K$ come le $K$ classi usate nel task di rilevazione
+    \item un vettore di dimensione $4$ contenente le coordinate delle \ac{BB} ottenute per regressione
+\end{itemize}
+Le \textit{Anchor Boxes} vengono assegnate ad una \ac{BB} che fa parte della \textit{ground truth} sulla base dell'indice di Jaccard. Se questo indice è inferiore a $0.4$ allora la \textit{Anchor Boxes} è considerata sfondo, mentre se il valore è compreso tra $0.4$ e $0.5$ è ignorata durante il training.
+Nel caso in cui invece l'indice di Jaccard di una \textit{Anchor Boxes} rispetto ad una \ac{BB} è superiore a $0.5$ viene assegnato il valore $1$ alla posizione corrispondente alla classe nel vettore di dimensione $K$.
+
+\paragraph{Sottorete di classificazione}
+Questa sottorete si occupa di calcolare la probabilità di presenza di un oggetto per ognuna delle \textit{Anchor Boxes} dell'insieme $A$ e per ognuna delle $K$ classi. È realizzata tramite una \ac{FCN} attaccata ad ogni livello della \ac{FPN}. I parametri della rete convoluzionale sono condivisi tra i livelli. 
+
+La sottorete prende in input una feature map con $C$ canali presa da un livello della piramide e ci applica quattro layer convoluzionali di dimensione $3 \times 3$ con $C$ filtri, ognuno con una funzione di attivazione ReLU, seguita a sua volta da un altro layer convoluzionale di dimensione $3 \times 3$ con $KA$ filtri. 
+Infine la funzione di attivazione scelta è la \textit{Sigmoid}.
+\paragraph{Sottorete di regressione}
+In parallelo alla rete di classificazione lavora la rete di regressione che attacca un'altra \ac{FCN} ad ogni livello della piramide per calcolare, partendo dalle \textit{Anchor Boxes} le coordinate della \ac{BB} contenente l'oggetto. La struttura è del tutto simile alla rete usata per la classificazione, ma alla fine i filtri non sono $KA$ bensì $4A$. 
+
+
