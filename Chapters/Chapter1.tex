@@ -136,7 +136,7 @@ Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famo
 
 
 \begin{table}[]
-    \makebox[\textwidth]{
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{|c|c|c|c|c|c|c|}
         \hline
         \textbf{Dataset}   & \textbf{Immagini} & \textbf{Totale BB} & \textbf{Classi} & \textbf{Risoluzione} & \textbf{Fonte}       & \textbf{Altre informazioni}                                                                                  \\ \hline
@@ -146,7 +146,7 @@ Nel seguito di questa sezione analizzeremo in breve alcuni dei dataset più famo
         Caltech            & 124K/124K         & 350K totali        & 3               & $640 \times 480$     & Vettura in movimento & Ambiente cittadino                                                                                           \\ \hline
         KITTI              & 194/195           & 160K totali        & 6               & $1382 \times 512$    & Vettura in movimento & 3D, moltissime vetture                                                                                       \\ \hline
         ILSVRC             & 458K/46K          & ND                   & 200             & Variabile            & Web                  & Challenge                                                                                                    \\ \hline
-        CityPersons        & 5K                & 35K                & 4               & ND                   & Altro dataset        & \begin{tabular}[c]{@{}c@{}}\textbackslash{}ac\{BB\} con stesse proporzioni, \\ 50 città diverse\end{tabular} \\ \hline
+        CityPersons        & 5K                & 35K                & 4               & ND                   & Altro dataset        & \begin{tabular}[c]{@{}c@{}}\ac{BB} con stesse proporzioni, \\ 50 città diverse\end{tabular} \\ \hline
         MS-COCO            & 123K/40K          & 896K in train      & 91              & Variabile            & Web                  & Ottima contestualizzazione                                                                                   \\ \hline
         OPEN IMAGES (2018) & 1,784M/125K       & 14M in train       & 600             & Variabile            & Web                  & \begin{tabular}[c]{@{}c@{}}Molte classi, molto ampio,\\  alta media di istanze per immagine\end{tabular}     \\ \hline
         EuroCity           & 28K/19K           & 250K in totale     & 9               & $1920 \times 1024$   & Vettura in movimento & \begin{tabular}[c]{@{}c@{}}Varietà nell'ambiente, \\ qualità delle immagini\end{tabular}                     \\ \hline

@@ -8,7 +8,7 @@ sns.set(style='whitegrid', palette='Set2')
 api = wandb.Api()
 
 # run is specified by <entity>/<project>/<run id>
-run = api.run("iskorini/MSc-Thesis-PJ/n9gsww1p")
+run = api.run("iskorini/MSc-Thesis-PJ/lrzynp4p")
 
 # save the metrics for the run to a csv file
 metrics_dataframe = run.history()

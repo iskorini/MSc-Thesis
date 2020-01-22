@@ -79,10 +79,6 @@ Le annotazioni dove possibile ricalcano i codici adottati dal dataset \href{http
 
 Le annotazioni sono state fatte manualmente da esseri umani ai quali è stato comunicato di fare \ac{BB} il più piccole possibili e che omettessero piccole parti di oggetti, accessori personali e parti occluse. Inoltre è stato comunicato di non annotare oggetti di piccole dimensioni o molto occlusi e persone delle quali si vede solo braccia o gambe.
 
-\subsection{Video di RFI}
-\label{subsec:rfi_video}
-ASPETTO DOCUMENTAZIONE PER SCRIVERE
-
 \section{Addestramento iniziale di RetinaNet}
 \label{sec:addestramento_iniziale_di_retinanet}
 In questa sezione presenteremo i risultati iniziali dell'addestramento di RetinaNet sui due dataset descritti in sezione \ref{sec:dataset}. Per lo scopo è stata usata una versione di \textit{RetinaNet} implementata tramite \textit{Keras} reperibile in forma originale al seguente \href{https://github.com/fizyr/keras-retinanet}{link}. Durante lo sviluppo del lavoro di tesi le modifiche al codice originale sono state molteplici, tanto da aver richiesto un \textit{fork} della \textit{repository} originale reperibile al seguente \href{https://github.com/iskorini/keras-retinanet}{link}. Per tenere traccia dell'addestramento è stato usato \href{https://www.wandb.com}{\textit{Weight \& Biases}}.
@@ -168,11 +164,9 @@ Possiamo ora descrivere le tre categorie di \textit{transfer learning}:
     \item \emph{Transfer Learning non supervisionato}: il task obbiettivo è differente dal task sorgente, ma hanno una qualche tipo di relazione tra di loro. Tuttavia l'attenzione si focalizza sul risolvere compiti di apprendimento non supervisionati nel dominio obbiettivo, come possono essere il \textit{clustering}, \textit{dimensionality reduction} o \textit{density estimation}. Non abbiamo quindi annotazioni né nel dominio sorgente, né nel dominio obbiettivo.
 \end{itemize}
 In Tabella \ref{table:TransferLearning} sono riassunte tutte le caratteristiche principali delle varie categorie di \textit{transfer learning}.
-%TODO: SISTEMARE TABELLA
-\textbf{SISTEMARE TABELLA \ref{table:TransferLearning}}
 \begin{table}[]
     \centering
-    \makebox[\textwidth]{
+    \resizebox{\textwidth}{!}{%
     \begin{tabular}{|c|c|c|c|c|}
     \hline
     Tipologia          & Similarità           & Annotazioni Sorgente & Annotazioni Target & Campo di applicabilità               \\ \hline
@@ -277,6 +271,7 @@ La valutazione è stata anche effettuata in maniera separata sia sulla parte di 
 
 Il successivo step della valutazione è stato effettuato su più classi, per questa comparazione delle performance è stata presa in considerazione anche la classe \texttt{people}, ma rinominandola in \texttt{person} in maniera tale da poter riusare i pesi della rete già addestrata. 
 \subsection{Passaggio alle immagini termiche su KAIST}
+\label{subsec:rgb_to_thermal_kaist}
 Dopo la fase di addestramento descritta in Sezione \ref{subsec:first_training_rgb_kaist} è stato effettuato il passaggio all'addestramento sulle immagini termiche del dataset di \ac{kmpd}. La base di partenza per questa fase di \textit{training} sono i pesi derivanti dall'addestramento effettuato in Sezione \ref{subsec:first_training_rgb_kaist}, è quindi stata attuata una tecnica di \textit{Transfer Learning} (\ref{subsec:transfer_learning}) in maniera da ridurre i tempi di addestramento. In questo caso, operando su due tipologie di immagini differenti cambia il dominio, più in particolare lo spazio delle feature. La distribuzione di probabilità sulle varie immagini resta la medesima in quanto il training è svolto sulle stesse immagini, come rimane invariato anche il task, ovvero il riconoscimento di pedoni e ciclisti.
 La fase di apprendimento è proceduta senza particolari intoppi, come si può vedere in Figura \ref{fig:fine_tuning_2} le varie loss scendono in maniera stabile e controllata. In maniera del tutto similare a quanto si può vedere in Figura \ref{fig:fine_tuning_1}.
 
@@ -307,7 +302,7 @@ La spiegazione di questo calo delle performance si ottiene analizzando i risulta
         \hline
                     & $\#$ Istanze & mAP    \\ \hline
         Person      & 38802             & 0.3415 \\ \hline
-        Cyclist     & 818               & 0.2015 \\ \hline
+        Cyclist     & 818               & 0.0387 \\ \hline
         Complessivo & 39620             & 0.3353 \\ \hline
         \end{tabular}
     }
@@ -316,7 +311,7 @@ La spiegazione di questo calo delle performance si ottiene analizzando i risulta
         \hline
                     & $\#$ Istanze & mAP    \\ \hline
         Person      & 14641             & 0.4440 \\ \hline
-        Cyclist     & 578               & 0.0029 \\ \hline
+        Cyclist     & 578               & 0.0440 \\ \hline
         Complessivo & 15219             & 0.4288 \\ \hline
         \end{tabular}
     }
@@ -324,12 +319,12 @@ La spiegazione di questo calo delle performance si ottiene analizzando i risulta
     \label{table:separate_test_lwir_kaist}
 \end{table}
 Guardando la Tabella \ref{table:separate_test_lwir_day} si osserva un drastico calo della \ac{map} nella parte diurna, mentre in Tabella \ref{table:separate_test_lwir_night} abbiamo un leggero incremento. Il motivo è dovuto alla differenza di temperatura tra il pedone e quello che lo circonda. Di giorno, essendo la temperatura atmosferica più alta rispetto alla notte questa differenza di temperatura è conseguentemente più bassa, rendendo così il pedone, o chi per lui, più difficilmente riconoscibile. Di notte invece accade l'esatto contrario, la temperatura atmosferica è generalmente più bassa, quindi aumenta il delta di temperatura tra il pedone e l'ambiente circostante, rendendolo più facilmente riconoscibile. Considerazioni simili possono essere fatte sull'analisi svolta sulla parte di dataset RGB in quanto di notte essendoci poca luce si fatica di più a riconoscere un oggetto che non è illuminato, di giorno invece accade l'esatto contrario.
-\textbf{aggiungere tabella con una colonna in più che rappersenta la differenza di performance tra le valutazioni}
+
 
 
 \section{Data Augmentation}
 \label{sec:data_augmentation}
-Nel Deep Learning avere un dataset ampio è un prerequisito fondamentale per far apprendere al proprio modello le caratteristiche che portano ad ottenere buoni risultati ed evitare il fenomeno dell'overfitting. Ad esempio, nel caso di \textbf{SEZIONE DA SCRIVERE SU ANNOTAZIONI MANUALI NEL PROSSIMO CAPITOLO} per ovvie questioni di tempo e praticità le annotazioni effettuate sul dataset sono molte poche, rendendolo così appena sufficiente ad i nostri scopi. Per ovviare a questo problema esiste la \textit{Data Augmentation}. Con questo termine si fa riferimento a tutte quelle tecniche che permettono di creare nuovi dati tramite manipolazioni dei dati originali. 
+Nel Deep Learning avere un dataset ampio è un prerequisito fondamentale per far apprendere al proprio modello le caratteristiche che portano ad ottenere buoni risultati ed evitare il fenomeno dell'overfitting. Ad esempio, nel caso di Sezione \ref{subsec:kaist_experiment} per ovvie questioni di tempo e praticità le annotazioni effettuate sul dataset sono molte poche, rendendolo così appena sufficiente ad i nostri scopi. Per ovviare a questo problema esiste la \textit{Data Augmentation}. Con questo termine si fa riferimento a tutte quelle tecniche che permettono di creare nuovi dati tramite manipolazioni dei dati originali. 
 
 Restando nel dominio delle immagini, la più semplice tecnica di \textit{Data Augmentation} è applicare casualmente alle immagini in input trasformazioni come possono essere la rotazione o l'inversione secondo un asse. 
 

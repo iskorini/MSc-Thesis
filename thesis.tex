@@ -45,11 +45,12 @@
 \usepackage{listings}
 \usepackage{subfig}
 \usepackage{caption}
-\usepackage{appendix}
+\usepackage[toc,page]{appendix}
 \usepackage{siunitx}
 \usepackage{url}
 \usepackage{epigraph}
 \usepackage{amsthm}
+\usepackage[ruled,vlined]{algorithm2e}
 %--------------------------------------------------------------
 \usepackage{dia-classicthesis-ldpkg}
 %--------------------------------------------------------------
@@ -99,6 +100,9 @@ preaction = {decorate},
 postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
 \theoremstyle{definition}
 \newtheorem{definition}{Definizione}[section]
+\renewcommand\appendixname{Appendici}
+\renewcommand\appendixtocname{\appendixname}
+\renewcommand\appendixpagename{Appendici}
 %--------------------------------------------------------------
 \begin{document}
 \definecolor{c338dd8}{RGB}{51,141,216}
@@ -120,23 +124,39 @@ postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
 % Mainmatter
 %--------------------------------------------------------------
 \pagenumbering{arabic}
-% use \cleardoublepage here to avoid problems with pdfbookmark
-%\include{intro} % use \myChapter command instead of \chapter
-%\cleardoublepage\myPart{Part I}
-%\include{chapter01}
-%\cleardoublepage\myPart{Part II}
-%\include{chapter02}
-%\include{chapter03}
 \tableofcontents
-\listoftables
 \listoffigures
+\lstlistoflistings
+
+\begingroup
+\let\clearpage\relax
+\let\cleardoublepage\relax
+\let\cleardoublepage\relax
+
+\vspace*{8ex}
+
+\listoftables
+\endgroup 
+
+\cleardoublepage
+\thispagestyle{empty}
+
+\begin{flushright}
+\null\vspace{\stretch {1}}
+\emph{"Perché Javascript \\
+\[...\]Javascript inoltre funziona molto bene con HTML e CSS, fondamentali per realizzare la parte front end di un’applicazione web. " \break ---  Un'applicazione web browser per la visualizzazione e analisi di sequenze dell'enciclopedia OEIS, Marco Vignini} \vspace{\stretch{2}}\null
+\end{flushright}
+\cleardoublepage
+
+%---------------------------CONTENUTO-------------------------------
 \include{Chapters/Intro}
 \include{Chapters/Chapter1}
 \include{Chapters/Sistema}
 \include{Chapters/Esperimenti}
 \include{Chapters/Conclusioni}
-\appendix
+\begin{appendices}
 \include{chapters/Appendice}
+\end{appendices}
 %-----------------GLOSSARIO ED ACRONIMI------------------------
 \include{acronyms}
 
