@@ -1,1 +1,13 @@
 \chapter{Conclusioni}
+Lo scopo della tesi è stato il miglioramento del riconoscimento di oggetti su dataset termici. Come si è potuto vedere nell'ultimo capitolo riguardante gli esperimenti sono stati fatti avanzamenti aggiungendo come fossero mattoncini sempre più tecniche, fino a costruire un infrastruttura in grado di effettuare rilevazioni migliori a parità di condizioni difficili ma con immagini convenzionali. 
+
+Il campo di utilizzo di un detector di questo tipo può spaziare dalla videosorveglianza fino ad avere applicazioni nella guida autonoma, passando per un incremento nella sicurezza dei treni, come d'altronde abbiamo potuto vedere tramite i video di \ac{RFI}. L'utilizzo di telecamere termiche oltre a migliorare la visione in condizioni di scarsa illuminazione si riesce a vedere anche oltre la nebbia o una fitta pioggia. 
+
+Tra le tecniche utilizzate è stata di particolare rilevanza quella di \textit{Data Augmentation} per via dei pochi dati a nostra disposizione. Sono stati inoltre effettuati esperimenti di \textit{Transfer Learning} in quanto il trasferimento di conoscenze tra due domini differenti ha aiutato nel rilevamento di operai nel dataset di \ac{RFI} nei quali non ci sono annotazioni. 
+
+\section{Sviluppi futuri}
+Questo progetto di ricerca mette alla luce come è possibile realizzare dei detector basati su immagini termiche per migliorare la \textit{object detection}. Prendendo come spunto questo lavoro si potrebbe realizzare un detector che si basa sia su immagini termiche che convenzionali per realizzare previsioni sempre più accurate.
+
+Per cercare di migliorare sempre di più quando si lavora con il \textit{Machine Learning} un aspetto molto importante è la quantità di dati a disposizione. Purtroppo la scarsità di dataset utilizzabili per realizzare l'obbiettivo di questa tesi ha giocato a nostro sfavore. Un'ulteriore idea quindi potrebbe essere lo sviluppo di ulteriori insiemi di dati sulla falsariga del dataset \acf{kmpd}. 
+
+Infine abbiamo potuto vedere che la tecnica di \textit{Data Augmentation} che ha portato subito a dei risultati migliori è stata \textit{AutoAugment} nonostante non sia stata realizzata una fase di addestramento specifica per il dataset utilizzato da noi. Si potrebbe quindi, con hardware più potente o avendo a disposizione molto più tempo, portare a termine la generazione di policy specifiche di \textit{AutoAugment}. 
