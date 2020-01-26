@@ -529,6 +529,43 @@ Il target dell'ottimizzatore è la minimizzazione della \ac{map} moltiplicata pe
 
 Purtroppo però non ha portato a miglioramenti probabilmente perché sette epoche non sono sufficienti partendo da pesi generici come quelli di \ac{MSCOCO}. Si ottiene una \ac{map} sulle persone pari a $0.4769$, mentre per le vetture si arriva a $0.6646$. 
 
+Con RandAugment è stato effettuato un ulteriore esperimento per verificare se effettivamente un tipo di augmentation del genere potesse portare a migliorare dei risultati già ottenuti. Riprendendo i risultati di Tabella \ref{tab:fine_tuning_kaist_flir} l'esperimento effettuato ha avuto come target il miglioramento della \ac{map} sulla classe \texttt{person}. 
+È stato quindi lanciato nuovamente l'ottimizzatore di iperparametri, ma a differenza di prima la base di partenza non è \ac{MSCOCO} bensì i pesi di RetinaNet all'ottava epoca di Tabella \ref{tab:fine_tuning_kaist_flir}. 
+
+\begin{figure}[]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[\ac{map}]{
+            \label{RA_2:a}
+            \includegraphics[width =0.90\textwidth]{images/graphic/mAP_person_RA.jpeg}
+        }
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Validation loss]{
+            \label{RA_2:b}
+            \includegraphics[width = 0.90\textwidth]{images/graphic/val_loss_person_RA.jpeg}
+            }
+    \end{minipage}
+    \centering
+    \caption{Seconda ottimizzazione di RandAugment}
+    \label{fig:RA_2}
+\end{figure}
+
+Rispetto alla prima fase di ottimizzazione i risultati possono essere considerati diametralmente opposti in quanto, come è possibile vedere da Figura \ref{RA_2:a} si ottiene maggior \ac{map} per parametri di \textit{RandAugment} decisamente più blandi. In particolare il risultato migliore si ottiene ponendo $M$ uguale a $6$ ed $N$ uguale ad $1$.
+Dopo questa nuova fase di ricerca di iperparametri è stata effettuata una nuova fase di addestramento di RetinaNet per vedere a che risultati portasse.
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/graphic/map_person_ra.pdf}
+    \caption{Risultati di RandAugment su \texttt{person}}
+    \label{fig:ra_person}
+\end{figure}
+
+Ciò che è stato ottenuto da questo esperimento è verificabile in Figura \ref{fig:ra_person} e mette alla luce come con \textit{RandAugment} si possano ottenere prestazioni del tutto paragonabili ad \textit{AutoAugment} con una computo decisamente più breve e gestibile. Infatti la massima \ac{map} ottenuta, eseguendo una specifica ottimizzazione su \texttt{person} è anche leggermente superiore a quello che è stato ottenuto usando delle policy predefinite su \textit{AutoAugment}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% LO RIFACCIO SULLE CARS?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \paragraph{Generative Adversarial Network}
 Con le \acf{GAN} si fa riferimento ad una classe di metodi basati su Reti Neurali introdotti da \textit{Ian Goodfellow} \cite{goodfellow2014generative} nel 2014 il cui scopo è generare nuovi dati. Scendendo un po' più nel dettaglio si hanno in particolare due reti che competono tra di loro: una rete generatrice $\mathcal{G}$ ed una rete discriminatrice $\mathcal{D}$. La rete $\mathcal{G}$, come si può intuire dal nome, si occupa di generare nuovi dati. La rete $\mathcal{D}$ invece si occupa di riconoscere dati reali da dati artificiali. Nvidia ha recentemente rilasciato \href{https://www.thispersondoesnotexist.com/}{un'applicazione web} \cite{Karras2019stylegan2} che facendo uso di \ac{GAN} genera volti di persone con risultati piuttosto impressionanti. 
 
@@ -558,6 +595,26 @@ Nel corso di questa tesi con lo scopo di generare nuovi dati con cui addestrare 
     \centering
     \caption{Immagine di \ac{kmpd}}
     \label{fig:gan}
+\end{figure}
+
+Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un'addestramento di RetinaNet partendo da zero,quindi senza effettuare alcun tipo di transfer learning. 
+I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia come le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. 
+\begin{table}[]
+    \begin{tabular}{c|c|c|c|c|c|c|c|}
+    \cline{2-8}
+     & 1 & 5 & 10 & 15 & \textbf{24} & \textbf{27} & 30 \\ \hline
+    \multicolumn{1}{|c|}{Person} & 0.0086 & 0.1018 & 0.1344 & 0.1635 & 0.1767 & 0.1763 & 0.1817 \\ \hline
+    \multicolumn{1}{|c|}{Cars} & 0.1699 & 0.4014 & 0.3888 & 0.4086 & 0.4146 & 0.4573 & 0.4478 \\ \hline
+    \end{tabular}
+    \caption{Risultati dopo addestramento su GAN}
+    \label{tab:result_GAN_scratch}
+\end{table}
+Infatti dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan} e come è possibile osservare non si ottiene alcuna miglioria in nessuna delle classi. 
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/graphic/graphics_GAN.pdf}
+    \caption{Risultati dopo fine tuning usando immagini genrate dalla GAN}
+    \label{fig:fine_tuning_gan}
 \end{figure}
 
 \section{Esperimenti su video di RFI}
@@ -612,9 +669,10 @@ Questo problema è facilmente risolvibile aumentando la soglia di rilevamento, i
 \end{figure}
 
 Un altro problema che rimane però è la rilevazione dei lavoratori in posizioni non usuali, ad esempio quando sono chinati. In Figura \ref{rfi_080:b} vi è un'esempio in quanto l'operaio sembra stia raccogliendo qualcosa per terra e non è stato rilevato. Per risolverlo sono stati annotati alcuni frame di quel video per poi effettuare test su altri due video a nostra disposizione. 
-\section{IoU sul tempo}
+\subsection{IoU sul tempo}
 \label{sec:iou_over_time}
-Allo scopo di migliorare precision e recall è stato sviluppato un algoritmo per eliminare rilevazioni fasulle e validare quelle effettivamente presenti. L'algoritmo in questione è in Algoritmo \ref{alg:iou}, mentre l'implementazione in Python è reperibile in Appendice \ref{appendix:a}.
+Allo scopo di ridurre ulterioremente il numero di falsi positivi all'interno dei video di \ac{RFI} è stato sviluppato un algoritmo che fa uso dell'indice di Jaccard (o \ac{IoU}) per validare le rilevazioni reali ed eliminare quelle fasulle. 
+L'algoritmo in questione è in Algoritmo \ref{alg:iou}, mentre l'implementazione in Python è reperibile in Appendice \ref{appendix:a}.
 
 
 \begin{algorithm}[H]
@@ -656,3 +714,44 @@ Tramite queste \ac{BB} intersecanti si calcola un valore di \ac{IoU} tra la \ac{
 Dopo questa fase avremo quindi un array di lunghezza pari al numero di \ac{BB} dell'immagine \textit{max\_detections} contenente valori di \ac{IoU}.
 Nell'ultima parte dell'algoritmo si confronta ogni valore di questo array per vedere se è superiore alla soglia $T$ passata in input: se lo è la \ac{BB} corrispondente verrà inserita come detection \textit{valida} per ogni immagine nel batch, altrimenti viene scartata.
 
+Come detto prima lo scopo finale dell'algoritmo non è tanto un miglioramento della \ac{map} generale tanto quanto la riduzione dei falsi positivi, ed applicando sui video forniti da \ac{RFI} nonostante non sia possibile calcolare metriche per via della mancanza di annotazioni si nota subito un miglioramento (Figura \ref{fig:alg_0} e \ref{fig:alg_1}).
+
+
+\begin{figure}[]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Prima]{
+            \label{alg_0:a}
+            \includegraphics[width =0.99\textwidth]{images/examples/rfi_no_iou_0.png}
+        }
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Dopo]{
+            \label{alg_0:b}
+            \includegraphics[width = 0.99\textwidth]{images/examples/rfi_iou_0.png}
+            }
+    \end{minipage}
+    \centering
+    \caption{Rilevazioni su video RFI con soglia 0.90, prima e dopo l'applicazione dell'algoritmo}
+    \label{fig:alg_0}
+\end{figure}
+\begin{figure}[]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Prima]{
+            \label{alg_1:a}
+            \includegraphics[width =0.99\textwidth]{images/examples/rfi_no_iou_1.png}
+        }
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Dopo]{
+            \label{alg_1:b}
+            \includegraphics[width = 0.99\textwidth]{images/examples/rfi_iou_1.png}
+            }
+    \end{minipage}
+    \centering
+    \caption{Rilevazioni su video RFI con soglia 0.90, prima e dopo l'applicazione dell'algoritmo}
+    \label{fig:alg_1}
+\end{figure}
