@@ -17,7 +17,7 @@ def annot_max(x,y, xytext=None, angleB = 120, ax=None):
     ax.annotate(text, xy=(xmax, ymax), xytext=xytext, **kw)
 
 
-csv_path = '/Users/fschipani/Desktop/evaluation_GAN.csv'
+csv_path = '/Users/fschipani/Desktop/evaluation_CAR_RA.csv'
 dataframe = pd.read_csv(csv_path)[['epoch', 'map_person', 'map_cars', 'map_cyclist', 'map']].sort_values(by='epoch')
 
 ax = plt.gca()

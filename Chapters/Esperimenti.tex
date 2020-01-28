@@ -565,6 +565,38 @@ Dopo questa nuova fase di ricerca di iperparametri è stata effettuata una nuova
 \end{figure}
 
 Ciò che è stato ottenuto da questo esperimento è verificabile in Figura \ref{fig:ra_person} e mette alla luce come con \textit{RandAugment} si possano ottenere prestazioni del tutto paragonabili ad \textit{AutoAugment} con un computo decisamente più breve e gestibile. Infatti la massima \ac{map} ottenuta eseguendo una specifica ottimizzazione su \texttt{person}, è anche leggermente superiore a quello che è stato ottenuto usando delle policy predefinite su \textit{AutoAugment}.
+
+Lo stesso esperimento è stato ripetuto utilizzando come target dell'ottimizzazione la \ac{map} sulla classe \texttt{cars}. I risultati ottenuti sono visibili in Figura \ref{fig:RA_3}.
+L'andamento è del tutto similare a quanto ottenuto con l'ottimizzazione effettuata con la classe \texttt{person}, non ottenendo però alcun miglioramento in termini di \ac{map} su nessuna delle classi.
+
+\begin{figure}[]
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[\ac{map}]{
+            \label{RA_3:a}
+            \includegraphics[width =0.90\textwidth]{images/graphic/mAP_ra_cars.jpeg}
+        }
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Validation loss]{
+            \label{RA_3:b}
+            \includegraphics[width = 0.90\textwidth]{images/graphic/val_loss_ra_cars.jpeg}
+            }
+    \end{minipage}
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \subfloat[Risultati]{
+            \label{RA_3:c}
+            \includegraphics[width =0.90\textwidth]{images/graphic/graphics_map_ra_cars.pdf}
+        }
+    \end{minipage}%
+    \centering
+    \caption{Terza ottimizzazione di RandAugment}
+    \label{fig:RA_3}
+\end{figure}
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LO RIFACCIO SULLE CARS?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
