@@ -1,13 +1,13 @@
 \chapter{Esperimenti}
 \label{chap:experiment}
 In questo capitolo verranno descritti ed analizzati gli esperimenti svolti durante lo sviluppo di questa tesi. La prima fase ha richiesto un'analisi dal punto di vista pratico dei dataset descritti in Sezione \ref{sec:dataset} seguita da una fase di preprocessing. 
-Infine dopo aver reso i dataset usabili sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map}. Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
+Infine, dopo aver reso i dataset usabili, sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map}. Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
 \section{Organizzazione dei dataset}
 \label{sec:dataset_org}
-I dataset utilizzati nello sviluppo del progetto di tesi sono stati descritti in Sezione \ref{sec:dataset}, descriveremo ora gli stessi insiemi di dati ma dal punto di vista delle operazioni preliminari che sono state necessarie per renderli utilizzabili e conformi tra di loro in maniera da poter effettuare gli esperimenti. 
+I dataset utilizzati nello sviluppo del progetto di tesi sono stati descritti in Sezione \ref{sec:dataset}; descriveremo ora gli stessi insiemi di dati ma dal punto di vista delle operazioni preliminari che sono state necessarie per renderli utilizzabili e conformi tra di loro in maniera da poter effettuare gli esperimenti. 
 \subsection{KAIST Multispectral Pedestrian Dataset}
 \label{subsec:kaist_experiment}
-La prima analisi effettuata su questo dataset è stata capire com'è stato suddiviso tra le varie cartelle. La situazione a cui ci si trova di fronte sono due cartelle, una contenente le immagini ed una contenente le annotazioni. All'interno di queste due cartelle la struttura è identica e sono presenti $12$ sottocartelle contenenti a loro volta un numero variabile di video già suddivisi in immagini. Un'esempio di cosa contiene una delle due sottocartelle è possibile visualizzarlo in Figura \ref{fig:kaist_dataset_folder}.
+La prima analisi effettuata su questo dataset è tesa a capire com'è stato suddiviso tra le varie cartelle. La situazione a cui ci si trova di fronte sono due cartelle: una contenente le immagini ed una contenente le annotazioni. All'interno di queste due cartelle la struttura è identica e sono presenti $12$ sottocartelle contenenti a loro volta un numero variabile di video già suddivisi in immagini. Un esempio di cosa contiene una delle due sottocartelle è possibile visualizzarlo in Figura \ref{fig:kaist_dataset_folder}.
 \begin{figure}
     \centering
     \includegraphics[width=0.7\textwidth]{images/screen_kaist.png}
@@ -16,13 +16,13 @@ La prima analisi effettuata su questo dataset è stata capire com'è stato suddi
 \end{figure} 
 Il dataset in questione ha già una divisione predefinita tra train set e test set, ottenibile eseguendo uno script presente nella cartella del dataset. 
 
-La successiva operazione che è stata effettuata è la stesura di un ulteriore script per convertire questi suddetti file in un formato accettato dalla specifica implementazione di RetinaNet utilizzata, ovvero un \texttt{CSV} composto da colonne contenenti in ordine il path dell'immagine, le eventuali coordinate della \ac{BB} e la classe di appartenenza della \ac{BB}. 
+La successiva operazione che è stata effettuata è la stesura di un ulteriore script per convertire i suddetti file in un formato accettato dalla specifica implementazione di RetinaNet utilizzata, ovvero un \texttt{CSV} composto da colonne contenenti in ordine: il path dell'immagine, le eventuali coordinate della \ac{BB} e la classe di appartenenza della \ac{BB}. 
 
-In questo dataset, come detto in Sezione \ref{subsec:kmpd}, sono presenti le classi \texttt{person}, \texttt{people}, \texttt{cyclist} e \texttt{person?}. A scopo di test sono state create due varianti dei file \texttt{CSV} poco sopra descritti. La prima variante comprende solamente le \ac{BB} che contengono \texttt{person} e \texttt{cyclist}, mentre la seconda variante, usata soprattutto in fase di test comprende anche la classe \texttt{people} opportunamente rinominata alla necessità in \texttt{person}. Quest'ultima operazione è stata effettuata per far uniformare i label di due classi molto simili tra di loro in quanto per gli scopi degli esperimenti non è interessante il fatto che un pedone sia in gruppo, poco visibile o altro. L'importante è che compaia all'interno del frame. 
+In questo dataset, come detto in Sezione \ref{subsec:kmpd}, sono presenti le classi \texttt{person}, \texttt{people}, \texttt{cyclist} e \texttt{person?}. A scopo di test sono state create due varianti dei file \texttt{CSV} poco sopra descritti. La prima variante comprende solamente le \ac{BB} che contengono \texttt{person} e \texttt{cyclist}, mentre la seconda variante, usata soprattutto in fase di test, comprende anche la classe \texttt{people} opportunamente rinominata alla necessità in \texttt{person}. Quest'ultima operazione è stata effettuata per far uniformare i label di due classi molto simili tra di loro in quanto per gli scopi degli esperimenti non è interessante il fatto che un pedone sia in gruppo, poco visibile o altro. L'importante è che compaia all'interno del frame. 
 \paragraph{Annotazioni delle auto}
-A differenza del dataset di FLIR, descritto in Sezione \ref{subsec:flirdataset}, mancano le annotazioni delle autovetture. Per effettuare altri esperimenti, descritti nelle sezioni a venire, è stato deciso di realizzarle a mano su $1000$ immagini. 
+A differenza del dataset di FLIR, descritto in Sezione \ref{subsec:flirdataset}, qui mancano le annotazioni delle autovetture. Per effettuare altri esperimenti, descritti nelle sezioni a venire, è stato deciso di realizzarle a mano su $1000$ immagini. 
 
-Al fine di rispecchiare il più possibile la divisione originale tra giorno e notte del dataset è stata necessaria un'analisi più approfondita della struttura stessa, da cui è derivato che ci sono in numero molto simile immagini diurne e notturne. Per il dettaglio della suddivisione si può far riferimento a Tabella \ref{table:day_night_kaist}.
+Al fine di rispecchiare il più possibile la divisione originale tra giorno e notte del dataset è stata necessaria un'analisi più approfondita della struttura stessa, da cui è derivato che sono presenti immagini diurne e notturne in numero molto simile. Per il dettaglio della suddivisione si può far riferimento a Tabella \ref{table:day_night_kaist}.
 \begin{table}[]
     \begin{tabular}{c|cccccc}
     Diurne & SET00 & SET01 & SET02 & SET06 & SET07 & SET08 \\ \hline
@@ -31,13 +31,13 @@ Al fine di rispecchiare il più possibile la divisione originale tra giorno e no
     \caption{Suddivisione giorno notte di KAIST}
     \label{table:day_night_kaist}
 \end{table}
-Sono state quindi selezionate casualmente $200$ immagini per ognuna delle cartelle \texttt{SET00/V000}, \texttt{SET05/V000}, \texttt{SET06/V001}, \texttt{SET08/V000} e \texttt{SET09/V000} e tramite lo strumento \ac{VIA} \cite{dutta2019vgg, dutta2016via} messo a disposizione gratuitamente sono state annotate tutte le auto, furgoni e bus non eccessivamente occlusi. 
+Sono state quindi selezionate casualmente $200$ immagini per ognuna delle cartelle \texttt{SET00/V000}, \texttt{SET05/V000}, \texttt{SET06/V001}, \texttt{SET08/V000} e \texttt{SET09/V000} e -- tramite lo strumento \ac{VIA} \cite{dutta2019vgg, dutta2016via} messo a disposizione gratuitamente -- sono state annotate tutte le auto, furgoni e bus non eccessivamente occlusi. 
 
 Infine sono state prese le immagini di \texttt{SET00/V000} e \texttt{SET05/V000} per formare un piccolo train set, mentre quelle di \texttt{SET08/V000} e \texttt{SET09/V000} sono state usate per il test set. Il validation set è stato fatto con il \texttt{SET06/V001}. 
 
 \subsection{FLIR Thermal Starter Dataset}
 \label{subsec:flir_experiment}
-Il dataset di FLIR ha richiesto molto poco preprocessing in quanto è stato sufficiente scrivere uno script che convertisse le annotazioni fornite con il dataset in un formato usabile da RetinaNet. In Codice \ref{code:flir_conversion} è possibile vedere il suddetto script. L'unica accortezza usata è stata di selezionare solamente un sottoinsieme delle annotazioni, ovvero \texttt{people}, \texttt{bycicles} e \texttt{cars}. Questo è stato fatto per far coincidere il più possibile le annotazioni di questo dataset con quelle del dataset di Sezione \ref{subsec:kaist_experiment}.
+Il dataset di FLIR ha richiesto molto poco preprocessing in quanto è stato sufficiente scrivere uno script che convertisse le annotazioni fornite con il dataset in un formato usabile da RetinaNet. In Codice \ref{code:flir_conversion} è possibile vedere il suddetto script. L'unica accortezza usata consiste nel selezionare solamente un sottoinsieme delle annotazioni, ovvero \texttt{people}, \texttt{bycicles} e \texttt{cars}. Questo è stato fatto per far coincidere il più possibile le annotazioni di questo dataset con quelle del dataset di Sezione \ref{subsec:kaist_experiment}.
 
 \begin{lstlisting}[caption={Script di conversione per dataset FLIR}, language=Python, basicstyle=\tiny,label=code:flir_conversion]
 import json
@@ -94,14 +94,14 @@ Riprendendo il discorso di Sezione \ref{sec:addestramento_iniziale_di_retinanet}
 
 
 \paragraph{Test dei pesi di KAIST su FLIR}
-La prima di queste sperimentazioni è stata provare i risultati di Sezione \ref{subsec:rgb_to_thermal_kaist} sul dataset di FLIR. Il test è stato effettuato provando diverse soglie di rilevazione che variano tra $0.3$ a $0.8$ con passo di $0.1$. Il grafico di Figura \ref{fig:map_first_flir_lwir} riassume i risultati. 
+L'obbiettivo di questa prima sperimentazione è consistito nel provare i risultati di Sezione \ref{subsec:rgb_to_thermal_kaist} sul dataset di FLIR. Il test è stato effettuato provando diverse soglie di rilevazione che variano tra $0.3$ a $0.8$ con passo di $0.1$. Il grafico di Figura \ref{fig:map_first_flir_lwir} riassume i risultati. 
 \begin{figure}[]
     \centering
     \includegraphics[width = 0.9\textwidth]{images/graphic/first_test_lwir_map.pdf}
     \caption{MAP al variare del valore di soglia su FLIR}
     \label{fig:map_first_flir_lwir}
 \end{figure}
-I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione dei ciclisti. La motivazione principale è la carenza di esempi su quest'ultimi in quanto ce ne sono molti pochi rispetto ad esempio i pedoni, un'altra motivazione degli scarsi risultati ottenuti è imputabile al diverso formato dell'annotazione in quanto su FLIR la \ac{BB} viene posta solamente sul ciclista, mentre su \ac{kmpd} sul ciclista più il mezzo. I risultati migliori comunque si ottengono con una soglia pari a $0.3$, in Figura \ref{fig:examples_first} mostriamo alcuni esempi di immagini annotate e classificate da RetinaNet, mentre in Tabella \ref{tab:first_experiment_flir} sono presenti i valori più dettagliati rispetto al miglior risultato. 
+I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione dei ciclisti. La motivazione principale è la carenza di esempi su quest'ultimi in quanto ce ne sono molto pochi rispetto ai pedoni; un'altra motivazione degli scarsi risultati ottenuti è imputabile al diverso formato dell'annotazione in quanto su FLIR la \ac{BB} viene posta solamente sul ciclista, mentre su \ac{kmpd} sul ciclista più il mezzo. I risultati migliori comunque si ottengono con una soglia pari a $0.3$; in Figura \ref{fig:examples_first} mostriamo alcuni esempi di immagini annotate e classificate da RetinaNet, mentre in Tabella \ref{tab:first_experiment_flir} sono presenti i valori più dettagliati rispetto al miglior risultato. 
 \begin{figure}[]
     \centering
     \makebox[\textwidth]{
@@ -142,7 +142,7 @@ I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione 
     \caption{Risultati del primo esperimento su FLIR}
     \label{tab:first_experiment_flir}
 \end{table}
-La Figura \ref{fig:precision_recall_person_1} mostra la curva di precision-recall al variare della soglia, e si nota immediatamente una mancanza sia di precisione che di richiamo. Possiamo inoltre notare che se abbiamo maggior esempi classificati per via una soglia più bassa otteniamo una scarsa precisione sintomo che quest'ultime rilevazioni sono in parte false, situazione contraria si verifica invece quando si aumenta la soglia di rilevamento con lo svantaggio però che in generale si ha una \textit{recall} minore.  
+La Figura \ref{fig:precision_recall_person_1} mostra la curva di precision-recall al variare della soglia di rilevamento, e si nota immediatamente una mancanza sia di precisione che di richiamo. Possiamo inoltre notare che se abbiamo maggior esempi classificati per via una soglia più bassa otteniamo una scarsa precisione sintomo che queste ultime rilevazioni sono in parte false; situazione contraria si verifica invece quando si aumenta la soglia di rilevamento con lo svantaggio però che in generale si ha una \textit{recall} minore.  
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/precision_recall_test_flir_kaist.pdf}
@@ -157,7 +157,7 @@ La Figura \ref{fig:precision_recall_person_1} mostra la curva di precision-recal
 \paragraph{Addestramento su FLIR partendo da COCO}
 In questo esperimento si effettua una fase di addestramento di RetinaNet partendo dai pesi della rete preaddestrata sul dataset \ac{MSCOCO}. Dare questo tipo di imprinting al nostro modello permette di effettuare un'operazione considerabile alla stessa stregua del Transfer Learning, e di ridurre quindi sensibilmente i tempi di addestramento. 
 
-Il grafico della fase di addestramento è in Figura \ref{fig:train_from_coco_FLIR} e come è possibile vedere le varie loss sono scese fino ad arrivare quasi a convergenza verso l'epoca $45$. La discesa è più stabile rispetto a quella vista in Sezione \ref{subsec:rgb_to_thermal_kaist} e questo è probabilmente dovuto alla migliore qualità di immagini di FLIR rispetto a \ac{kmpd}.  
+Il grafico della fase di addestramento è in Figura \ref{fig:train_from_coco_FLIR} e mostra che le varie loss sono scese fino ad arrivare quasi a convergenza verso l'epoca $45$. La discesa è più stabile rispetto a quella vista in Sezione \ref{subsec:rgb_to_thermal_kaist} e questo è probabilmente dovuto alla migliore qualità di immagini di FLIR rispetto a \ac{kmpd}.  
 \begin{figure}[]
     \centering
     \includegraphics[width = \textwidth]{images/graphic/train_flir_from_coco.pdf}
@@ -195,9 +195,11 @@ Rispetto ai risultati mostrati in precedenza (Tabella \ref{tab:first_experiment_
 
 
 \paragraph{Addestramento di FLIR partendo da KAIST}
-L'idea dietro questo esperimento fonda le sue basi dietro al fallimento riguardante un test precedente, ovvero quello in cui si testano i pesi di \ac{kmpd} sul dataset di FLIR. L'evoluzione delle misure di loss durante l'addestramento è visibile in Figura \ref{fig:flir_train_from_kaist}. Infatti ora si proverà ad addestrare sul dataset FLIR usando come base di partenza di RetinaNet i pesi derivanti dall'addestramento effettuato su \ac{kmpd}.
+Il fallimento del test in cui si testano i pesi di \ac{kmpd} sul dataset di FLIR è la ragione per cui occorre testare quest'ulteriore variante.
 
-La prima cosa che si nota è l'andamento molto simile rispetto all'esperimento precedente, successivamente si può notare anche come si arriva ai medesimi risultati, ma con qualche epoca di anticipo. Infatti, nonostante i valori di partenza delle loss sono sensibilmente più elevati si ha una discesa più repentina. Per quanto riguarda Precision/Recall e \ac{map} è possibile vedere grafici analoghi ai precedenti in Figura \ref{fig:flir_train_from_kaist_pr} e \ref{fig:flir_train_from_kaist_result}. L'andamento è comunque analogo al precedente, ma come si può vedere da Tabella \ref{table:best_flir_from_kaist} si ottiene ovviamente un aumento della \ac{map} rispetto al test di Tabella \ref{tab:first_experiment_flir}, ma comunque c'è un calo delle performance rispetto a Tabella \ref{table:coco_result_best_flir}. Per maggiore chiarezza espositiva i risultati sono riassunti in Tabella \ref{tab:flir_comp}.
+L'evoluzione delle misure di loss durante l'addestramento è visibile in Figura \ref{fig:flir_train_from_kaist}. Infatti ora si proverà ad addestrare sul dataset FLIR usando come base di partenza di RetinaNet i pesi derivanti dall'addestramento effettuato su \ac{kmpd}.
+
+La prima cosa che si nota è l'andamento molto simile rispetto all'esperimento precedente, successivamente si può notare anche come si arriva ai medesimi risultati, ma con qualche epoca di anticipo. Infatti, nonostante i valori di partenza delle loss sono sensibilmente più elevati, si ha una discesa più repentina. Per quanto riguarda Precision/Recall e \ac{map} è possibile vedere grafici analoghi ai precedenti in Figura \ref{fig:flir_train_from_kaist_pr} e \ref{fig:flir_train_from_kaist_result}. L'andamento è comunque analogo al precedente ma, come si può vedere da Tabella \ref{table:best_flir_from_kaist}, si ottiene ovviamente un aumento della \ac{map} rispetto al test di Tabella \ref{tab:first_experiment_flir}, ma comunque si nota un calo delle performance rispetto a Tabella \ref{table:coco_result_best_flir}. Per maggiore chiarezza espositiva i risultati sono riassunti in Tabella \ref{tab:flir_comp}.
 \begin{figure}[]
     \centering
     \includegraphics[width=0.9\textwidth]{images/graphic/flir_from_kaist.pdf}
@@ -286,7 +288,7 @@ Infine riassumiamo in Tabella \ref{tab:best_kmpd_flir} i migliori risultati otte
 
 \subsection{Rilevazione delle auto} %riferimento in TODO -> "Per 5/10" DESCRIVERE ULTIME FIGURE
 La rilevazione delle auto su entrambi i dataset ha richiesto un lavoro di preprocessing sul dataset \ac{kmpd} descritto in precedenza nella Sezione \ref{subsec:kaist_experiment}.
-Il primo test effettuato è fissare una baseline data dall'addestramento su FLIR ed il successivo test sulla parte di dataset annotata manualmente di \ac{kmpd} cercando di vedere il comportamento con le autovetture. Il risultato è in Tabella \ref{table:baseline_car_kaist}. 
+Il primo test effettuato consiste nel fissare una baseline data dall'addestramento su FLIR ed il secondo test si effettua sulla parte di dataset annotata manualmente di \ac{kmpd} cercando di vedere il comportamento con le autovetture. Il risultato è in Tabella \ref{table:baseline_car_kaist}. 
 \begin{table}[]
     \centering
     \begin{tabular}{c|c|c|}
@@ -301,7 +303,7 @@ Il primo test effettuato è fissare una baseline data dall'addestramento su FLIR
     \label{table:baseline_car_kaist}
 \end{table} 
 
-Il passo successivo è stata una fase di \textit{fine tuning} di questi pesi sulla parte di train di \ac{kmpd} annotata manualmente con le vetture. Come si può vedere in Figura \ref{fig:fine_tuning_kaist_flir} l'addestramento ha avuto una durata relativamente corta in quanto con solamente $15$ ore e $18$ epoche è arrivato al termine.
+Il passo successivo è stata una fase di \textit{fine tuning} di questi pesi sulla parte di train di \ac{kmpd} annotata manualmente con le vetture. Come si può vedere in Figura \ref{fig:fine_tuning_kaist_flir}, l'addestramento ha avuto una durata relativamente corta in quanto con solamente $15$ ore e $18$ epoche è arrivato al termine.
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/fine_tuning_kaist_flir.pdf}
@@ -370,9 +372,10 @@ Andando a confrontare le curve di P/R di Figura \ref{fig:test_kaist_ep8} si nota
 
 \section{Data Augmentation}
 \label{sec:data_augmentaion_experiment}
-Al fine di migliorare la qualità delle detection un ulteriore diramazione di esperimenti è stata svolta usando tecniche di Data Augmentation (Sezione \ref{sec:data_augmentation}). Le tecniche utilizzate in particolare sono AutoAugment, RandAugment ed infine delle immagini termiche generate da una \ac{GAN}. L'utilizzo di queste tecniche è motivato dal fatto che, soprattutto nella parte di dataset di \ac{kmpd} annotata manualmente le annotazioni sono poco numerose. Quindi si prova ad aumentarne virtualmente il loro numero variandone l'aspetto tramite trasformazioni sull'immagine o porzioni di essa.
+Al fine di migliorare la qualità delle detection un ulteriore diramazione di esperimenti è stata svolta usando tecniche di Data Augmentation (Sezione \ref{sec:data_augmentation}). Le tecniche utilizzate in particolare sono AutoAugment, RandAugment ed infine delle immagini termiche generate da una \ac{GAN}. L'utilizzo di queste tecniche è motivato dal fatto che, soprattutto nella parte di dataset di \ac{kmpd} annotata manualmente, le annotazioni sono poco numerose. Quindi si prova ad aumentarne virtualmente il loro numero variandone l'aspetto tramite trasformazioni sull'immagine o porzioni di essa.
 \paragraph{AutoAugment}
-AutoAugment per via dell'elevata richiesta computazionale, non alla portata dell'hardware utilizzato per lo sviluppo della tesi, non è stato sfruttato adeguatamente, bensì sono state usate policy derivanti dagli addestramenti effettuati su altri dataset. In Codice \ref{code:policy_v0}, \ref{code:policy_v1} e \ref{code:policy_v2} sono presenti le tre politiche di AutoAugment con cui sono stati effettuati gli esperimenti.  
+AutoAugment richiede un'elevata richiesta computazionale, che non è alla portata dell'hardware utilizzato per lo sviluppo della tesi, quindi non è stato sfruttato adeguatamente, bensì sono state usate policy derivanti dagli addestramenti effettuati su altri dataset. 
+In Codice \ref{code:policy_v0}, \ref{code:policy_v1} e \ref{code:policy_v2} sono presenti le tre politiche di AutoAugment con cui sono stati effettuati gli esperimenti.  
 
 \begin{lstlisting}[caption={Policy V0 di AutoAugment}, language=Python, basicstyle=\tiny,label=code:policy_v0]
 def policy_v0():
@@ -412,7 +415,7 @@ def policy_v1():
     ]
     return policy
 \end{lstlisting}
-La seconda, a differenza della prima introduce un numero di subpolicy più alto, ma mantiene il numero di operazioni applicabili ad immagine. 
+La seconda, a differenza della prima, introduce un numero di subpolicy più alto, ma mantiene il numero di operazioni applicabili ad immagine. 
 
 \begin{lstlisting}[caption={Policy V2 di AutoAugment}, language=Python, basicstyle=\tiny,label=code:policy_v2]
 def policy_v2():
@@ -515,9 +518,9 @@ L'ultimo esperimento effettuato con AutoAugment parte dai pesi di quello precede
 \end{table}
 
 \paragraph{RandAugment} 
-RandAugment, come precedentemente descritto in Sezione \ref{subsec:rand_augment}, riduce notevolmente il costo computazionale rispetto ad AutoAugment per far si che si adatti al dataset su cui sarà applicato. 
+RandAugment, come precedentemente descritto in Sezione \ref{subsec:rand_augment}, riduce notevolmente il costo computazionale rispetto ad AutoAugment per far sì che si adatti al dataset su cui sarà applicato. 
 
-In questo caso ci si hanno solo due parametri $N$ ed $M$ con il primo che indica il numero di operazioni da applicare, ed il secondo la potenza con cui applicarle. Ci si riconduce in breve ad un problema di ottimizzazione di iperparametri risolvibile anche con un algoritmo GridSearch. In questa tesi però è stata usata la piattaforma \href{http://www.comet.ml}{Comet.ml} che implementa una serie di algoritmi per realizzare ottimizzazione. L'algoritmo scelto è stato quello che loro definiscono il migliore, un algoritmo di tipo \textit{bayesiano} su cui non vengono rilasciati ulteriori dettagli.
+In questo caso si hanno solo due parametri $N$ ed $M$, con il primo che indica il numero di operazioni da applicare, ed il secondo la potenza con cui applicarle. Ci si riconduce in breve ad un problema di ottimizzazione di iperparametri risolvibile anche con un algoritmo GridSearch. In questa tesi però è stata usata la piattaforma \href{http://www.comet.ml}{Comet.ml} che implementa una serie di algoritmi per realizzare ottimizzazione. L'algoritmo scelto è stato quello che la piattaforma definisce il migliore, un algoritmo di tipo \textit{bayesiano} su cui non vengono rilasciati ulteriori dettagli.
 
 Il target dell'ottimizzatore è la minimizzazione della \ac{map} moltiplicata per $-1$, in pratica quindi è la massimizzazione della metrica. L'intero processo ha avuto una durata di circa $130$ ore consecutive in quanto l'ambiente è stato impostato per eseguire una fase di training di $7$ epoche seguita da un test per la valutazione delle performance, partendo dai pesi di RetinaNet preaddestrata su \ac{MSCOCO}. Il tutto è stato realizzato sulla parte di dataset di \ac{kmpd} con le annotazioni delle automobili. Un sommario dell'ottimizzazione è in Figura \ref{fig:map_comet_ml} e come si può vedere i risultati migliori si ottengono ponendo $M$ con valori compresi tra $26$ e $30$ e con $N$ uguale a $3$.
 \begin{figure}[]
@@ -527,9 +530,9 @@ Il target dell'ottimizzatore è la minimizzazione della \ac{map} moltiplicata pe
     \label{fig:map_comet_ml}
 \end{figure}
 
-Purtroppo però non ha portato a miglioramenti probabilmente perché sette epoche non sono sufficienti partendo da pesi generici come quelli di \ac{MSCOCO}. Si ottiene una \ac{map} sulle persone pari a $0.4769$, mentre per le vetture si arriva a $0.6646$. 
+Purtroppo questa ottimizzazione però non ha portato a miglioramenti probabilmente perché sette epoche non sono sufficienti partendo da pesi generici come quelli di \ac{MSCOCO}. Si ottiene una \ac{map} sulle persone pari a $0.4769$, mentre per le vetture si arriva a $0.6646$. 
 
-Con RandAugment è stato effettuato un ulteriore esperimento per verificare se effettivamente un tipo di augmentation del genere potesse portare a migliorare dei risultati già ottenuti. Riprendendo i risultati di Tabella \ref{tab:fine_tuning_kaist_flir} l'esperimento effettuato ha avuto come target il miglioramento della \ac{map} sulla classe \texttt{person}. 
+Con RandAugment è stato effettuato un ulteriore esperimento per verificare se effettivamente un tipo di augmentation del genere potesse portare a migliorare dei risultati già ottenuti. A partire dai risultati di Tabella \ref{tab:fine_tuning_kaist_flir} l'esperimento effettuato ha avuto come target il miglioramento della \ac{map} sulla classe \texttt{person}. 
 È stato quindi lanciato nuovamente l'ottimizzatore di iperparametri, ma a differenza di prima la base di partenza non è \ac{MSCOCO} bensì i pesi di RetinaNet all'ottava epoca di Tabella \ref{tab:fine_tuning_kaist_flir}. 
 
 \begin{figure}[]
@@ -552,7 +555,7 @@ Con RandAugment è stato effettuato un ulteriore esperimento per verificare se e
     \label{fig:RA_2}
 \end{figure}
 
-Rispetto alla prima fase di ottimizzazione i risultati possono essere considerati diametralmente opposti in quanto, come è possibile vedere da Figura \ref{RA_2:a} si ottiene maggior \ac{map} per parametri di \textit{RandAugment} decisamente più blandi. In particolare il risultato migliore si ottiene ponendo $M$ uguale a $6$ ed $N$ uguale ad $1$.
+Rispetto alla prima fase di ottimizzazione i risultati possono essere considerati diametralmente opposti in quanto, come è possibile vedere da Figura \ref{RA_2:a}, si ottiene maggior \ac{map} per parametri di \textit{RandAugment} decisamente più blandi. In particolare il risultato migliore si ottiene ponendo $M$ uguale a $6$ ed $N$ uguale ad $1$.
 Dopo questa nuova fase di ricerca di iperparametri è stata effettuata una nuova fase di addestramento di RetinaNet per vedere a che risultati portasse.
 \begin{figure}[]
     \centering
@@ -561,7 +564,7 @@ Dopo questa nuova fase di ricerca di iperparametri è stata effettuata una nuova
     \label{fig:ra_person}
 \end{figure}
 
-Ciò che è stato ottenuto da questo esperimento è verificabile in Figura \ref{fig:ra_person} e mette alla luce come con \textit{RandAugment} si possano ottenere prestazioni del tutto paragonabili ad \textit{AutoAugment} con una computo decisamente più breve e gestibile. Infatti la massima \ac{map} ottenuta, eseguendo una specifica ottimizzazione su \texttt{person} è anche leggermente superiore a quello che è stato ottenuto usando delle policy predefinite su \textit{AutoAugment}.
+Ciò che è stato ottenuto da questo esperimento è verificabile in Figura \ref{fig:ra_person} e mette alla luce come con \textit{RandAugment} si possano ottenere prestazioni del tutto paragonabili ad \textit{AutoAugment} con un computo decisamente più breve e gestibile. Infatti la massima \ac{map} ottenuta eseguendo una specifica ottimizzazione su \texttt{person}, è anche leggermente superiore a quello che è stato ottenuto usando delle policy predefinite su \textit{AutoAugment}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % LO RIFACCIO SULLE CARS?
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -569,7 +572,8 @@ Ciò che è stato ottenuto da questo esperimento è verificabile in Figura \ref{
 \paragraph{Generative Adversarial Network}
 Con le \acf{GAN} si fa riferimento ad una classe di metodi basati su Reti Neurali introdotti da \textit{Ian Goodfellow} \cite{goodfellow2014generative} nel 2014 il cui scopo è generare nuovi dati. Scendendo un po' più nel dettaglio si hanno in particolare due reti che competono tra di loro: una rete generatrice $\mathcal{G}$ ed una rete discriminatrice $\mathcal{D}$. La rete $\mathcal{G}$, come si può intuire dal nome, si occupa di generare nuovi dati. La rete $\mathcal{D}$ invece si occupa di riconoscere dati reali da dati artificiali. Nvidia ha recentemente rilasciato \href{https://www.thispersondoesnotexist.com/}{un'applicazione web} \cite{Karras2019stylegan2} che facendo uso di \ac{GAN} genera volti di persone con risultati piuttosto impressionanti. 
 
-Nel corso di questa tesi con lo scopo di generare nuovi dati con cui addestrare RetinaNet è stato fatto uso delle \ac{GAN} sulla parte di dataset di \ac{kmpd} annotatata con le vetture. Partendo dalle immagini catturate dalle telecamere RGB sono state quindi generate immagini termiche del tutto realistiche ed utilizzabili per un ulteiore fase di addestramento. In Figura \ref{fig:gan} è presente un'immagine tratta dal dataset \ac{kmpd} nelle sue tre varianti. La \ref{gan:a} è l'immagine nello spettro dei colori, mentre la \ref{gan:b} è la stessa immagine acquisita con telecamere termiche. La \ref{gan:c} è invece l'immagine generata con le \ac{GAN} partendo da \ref{gan:a}.
+Nel corso di questa tesi è stato fatto uso delle \ac{GAN} sulla parte di dataset di \ac{kmpd} annotatata con le vetture allo scopo di generare nuovi dati con cui addestrare RetinaNet. 
+Partendo dalle immagini catturate dalle telecamere RGB sono state quindi generate immagini termiche del tutto realistiche ed utilizzabili per un'ulteriore fase di addestramento. In Figura \ref{fig:gan} è presente un'immagine tratta dal dataset \ac{kmpd} nelle sue tre varianti. La \ref{gan:a} è l'immagine nello spettro dei colori, mentre la \ref{gan:b} è la stessa immagine acquisita con telecamere termiche. La \ref{gan:c} è invece l'immagine generata con le \ac{GAN} partendo da \ref{gan:a}.
 \begin{figure}[]
     \begin{minipage}{.29\linewidth}
         \centering
@@ -597,8 +601,8 @@ Nel corso di questa tesi con lo scopo di generare nuovi dati con cui addestrare 
     \label{fig:gan}
 \end{figure}
 
-Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un'addestramento di RetinaNet partendo da zero,quindi senza effettuare alcun tipo di transfer learning. 
-I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia come le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. 
+Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un'addestramento di RetinaNet partendo da zero, vale a dire senza effettuare alcun tipo di transfer learning. 
+I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia che le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. 
 \begin{table}[]
     \begin{tabular}{c|c|c|c|c|c|c|c|}
     \cline{2-8}
@@ -609,7 +613,7 @@ I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e com
     \caption{Risultati dopo addestramento su GAN}
     \label{tab:result_GAN_scratch}
 \end{table}
-Infatti dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan} e come è possibile osservare non si ottiene alcuna miglioria in nessuna delle classi. 
+Infatti dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan}, e come è possibile osservare non si ottiene alcuna miglioria, in nessuna delle classi. 
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/graphics_GAN.pdf}
@@ -620,9 +624,9 @@ Infatti dopo questo esperimento il successivo è stato addestrare RetinaNet sull
 \section{Esperimenti su video di RFI}
 \label{sec:RFI_video_experiment}
 
-I video termici di \ac{RFI} forniti sono tre, e su tutti e tre il task è la rilevazione di persone. Inizialmente non essendo annotati l'unica operazione possibile è stata dare in pasto a RetinaNet i frame del video per realizzare inferenza usando i pesi migliori per la rilevazione di persone, ovvero quelli ottenuti tramite l'addestramento su \ac{kmpd} tramite la terza policy all'epoca 5 (Tabella \ref{table:aa_kaist}). 
+I video termici di \ac{RFI} forniti sono tre, e su tutti e tre il task è la rilevazione di persone. Non essendo annotati la prima e unica operazione possibile è stata dare in pasto a RetinaNet i frame del video per realizzare inferenza usando i pesi migliori per la rilevazione di persone, ovvero quelli ottenuti tramite l'addestramento su \ac{kmpd} tramite la terza policy all'epoca 5 (Tabella \ref{table:aa_kaist}). 
 
-I risultati iniziali, pur non potendo calcore metriche appaiono da una valutazione puramente soggettiva promettenti, in quanto le rilevazioni sembrano abbastanza precise. 
+I risultati iniziali appaiono promettenti benché da essi non si possano calcolare metriche, in quanto le rilevazioni sembrano abbastanza precise. 
 
 I primi test sono stati effettuati tenendo una soglia di rilevazione pari a $0.30$, questo ha portato ad una rilevazione sempre accurata degli operai, ma anche a molte rilevazioni false, come ad esempio quelle mostrate in Figura \ref{fig:rfi_030}. 
 
@@ -668,7 +672,7 @@ Questo problema è facilmente risolvibile aumentando la soglia di rilevamento, i
     \label{fig:rfi_080}
 \end{figure}
 
-Un altro problema che rimane però è la rilevazione dei lavoratori in posizioni non usuali, ad esempio quando sono chinati. In Figura \ref{rfi_080:b} vi è un'esempio in quanto l'operaio sembra stia raccogliendo qualcosa per terra e non è stato rilevato. Per risolverlo sono stati annotati alcuni frame di quel video per poi effettuare test su altri due video a nostra disposizione. 
+Rimane però il problòema  della rilevazione dei lavoratori in posizioni non usuali, ad esempio quando sono chinati. In Figura \ref{rfi_080:b} vi è un esempio in quanto l'operaio sembra stia raccogliendo qualcosa per terra e non è stato rilevato. Per risolvere il problema sono stati annotati alcuni frame di quel video per poi effettuare test su altri due video a nostra disposizione. 
 \subsection{IoU sul tempo}
 \label{sec:iou_over_time}
 Allo scopo di ridurre ulterioremente il numero di falsi positivi all'interno dei video di \ac{RFI} è stato sviluppato un algoritmo che fa uso dell'indice di Jaccard (o \ac{IoU}) per validare le rilevazioni reali ed eliminare quelle fasulle. 
