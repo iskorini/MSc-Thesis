@@ -1,4 +1,4 @@
-\chapter{Object Detection}
+\myChapter{Object Detection}
 L'Object Detection è un \textit{task} legato al mondo della \textit{computer vision}
 che consiste nel rilevare e classificare istanze di oggetti in immagini o video.
 
@@ -10,7 +10,7 @@ Lo sviluppo di hardware sempre più potente ha portato l'interesse verso modelli
 In questo capitolo cercheremo di contestualizzare, anche storicamente, tecniche, modelli ed evoluzioni
 nel campo della \textit{Object Detection}. 
 La letteratura sui detector è molto disomogenea e variegata, prenderemo quindi come 
-riferimento i lavori di Licheng Jiao \textit{et al.} 
+riferimento due \textit{survey} di Licheng Jiao \textit{et al.} 
 \cite{DBLP:journals/corr/abs-1907-09408} e 
 Zhengxia Zou \textit{et al.} \cite{DBLP:journals/corr/abs-1905-05055}.
 
@@ -36,7 +36,7 @@ Il primo di questi modelli statistici, nato nel $1991$ e chiamato \textit{Eigenf
 
 Successivamente, fino al $2005$, l'evoluzione ha portato a tecniche in cui si cambiava radicalmente la rappresentazione dell'immagine, detta anche <<insieme delle feature>>. Inizialmente lo scopo era apprendere come trasformare un'immagine da insieme di pixel a insieme di coefficenti \textit{wavelet}. Grazie alla sua efficienza, tra tutte le trasformate, quella a prendere piede fu la \textit{Haar wavelet}. Dal $2005$ al $2012$ c'è stato un passaggio a rappresentazioni basate sul gradiente. 
 
-Intorno al $1990$ iniziano a fare capolino le prime \ac{CNN} \cite{vaillant1994original} le quali però non hanno avuto grandi applicazioni per via dell'elevato costo computazionale rispetto alle risorse disponibili ai tempi. I modelli realizzati con \ac{CNN} non potevano essere quindi molto profondi, e per questo avevano forti limitazioni. Un lavoro che a quei tempi tentava di ridurre l'elevato costo computazionale è \textit{space displacement network} \cite{lecun1998gradient}. L'idea era di estrarre una rappresentazione dell'immagine in un solo passaggio ed è stata realizzata estendendo i layer della \ac{CNN}. Storicamente le \ac{CNN} di cui si parla nel lavoro di LeCun \textit{et al.} possono essere considerate un po' le antenate di quelle che attualmente chiamiamo \ac{FCN} \cite{long2015fully} \cite{chen2014semantic}
+Intorno al $1990$ iniziano a fare capolino le prime \ac{CNN} \cite{vaillant1994original} le quali però non hanno avuto grandi applicazioni per via dell'elevato costo computazionale rispetto alle risorse disponibili ai tempi. I modelli realizzati con \ac{CNN} non potevano essere quindi molto profondi, e per questo avevano forti limitazioni. Un lavoro che a quei tempi tentava di ridurre l'elevato costo computazionale è \textit{space displacement network} \cite{lecun1998gradient}. L'idea era di estrarre una rappresentazione dell'immagine in un solo passaggio ed è stata realizzata estendendo i layer della \ac{CNN}. Storicamente le \ac{CNN} di cui si parla nel lavoro di LeCun \textit{et al.} \cite{lecun1998gradient} possono essere considerate un po' le antenate di quelle che attualmente chiamiamo \ac{FCN} \cite{long2015fully} \cite{chen2014semantic}
 \subsubsection{Detection multiscala}
 \label{subsec:multiscale_detection}
 Uno degli aspetti più interessanti della ricerca si basa sulla rilevazione di oggetti con diverse misure o diverse proporzioni. Come è possibile vedere in Figura \ref{fig:multi_scale_history} la soluzione a questo problema ha attraversato varie fasi.
@@ -58,7 +58,13 @@ Per ottenere queste regioni di pixel su un'immagine ci sono vari modi, discussi 
 \paragraph{Deep Regression}
 Questa tecnica, sviluppata dal $2013$ al $2016$ si basa sull'idea di predirre direttamente le coordinate della \ac{BB} contenente l'oggetto usando come feature quelle estratte da un modello di \textit{deep learning} \cite{redmon2016you}. Il vantaggio fondamentale di questo approccio è l'efficienza e la velocità di implementazione, mentre uno svantaggio è la bassa accuratezza di localizzazione specialmente su piccoli oggetti.
 \paragraph{Multi Reference Detection}
-Questo approccio è il più usato per il rilevamento di oggetti con scale differenti e si basa sull'uso di un insieme di finestre rettangolari, che possono variare in dimensione e proporzioni, applicate sull'immagine, dette anche \textit{Anchor Boxes} \cite{ren2015faster, liu2016ssd, redmon2017yolo9000}. Sulla base di queste regioni rettangolari viene poi effettuata una predizione della \ac{BB}. 
+Questo approccio è il più usato per il rilevamento di oggetti con scale differenti e si basa sull'uso di un insieme di finestre rettangolari, che possono variare in dimensione e proporzioni, applicate sull'immagine, dette anche \textit{Anchor Boxes} \cite{ren2015faster, liu2016ssd, redmon2017yolo9000}. Sulla base di queste regioni rettangolari viene poi effettuata una predizione della \ac{BB}. In Figura \ref{fig:anchor_Example} è possibile trovare un esempio di come sono utilizzate le \textit{Anchor Boxes} per la rilevazione di aeroplani e imbarcazioni. 
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/examples/anchorbox_predictionsrefine.png}
+    \caption{Esempio di Anchor Boxes, tratto da \href{https://it.mathworks.com/help/vision/ug/anchor-boxes-for-object-detection.html}{mathworks.com}}
+    \label{fig:anchor_Example}
+\end{figure}
 \paragraph{Multi Resolution Detection}
 Negli ultimi anni un altro approccio che ha preso piede si basa sul rilevare oggetti con dimensioni differenti a layer differenti, sfruttando quindi la struttura di un modello a strati \cite{liu2016ssd, lin2017feature, zhang2018single, cai2016unified}. Basti pensare alle \ac{CNN} che nel corso della propagazione dell'immagine in input, grazie alla loro composizione, formano una rappresentazione piramidale dell'input. Diventa quindi più facile rilevare oggetti grandi nei layer più profondi e viceversa diventa più facile rilevare oggetti piccoli nei layer meno profondi. 
 \subsubsection{Regressione basata su Bounding Box}
@@ -177,7 +183,7 @@ Sono stati annotati $250.000$ fotogrammi, per un totale di $350.000$ \ac{BB} e $
 
 
 
-\paragraph{KITTI}  \cite{geiger2012we} Questo dataset è realizzato a partire da hardware usato per la guida autonoma. La particolarità è che offre informazioni tridimensionali dell'ambiente grazie a dei sensori laser dedicati che mappano il territorio circostante. Per la realizzazione sono state  utilizzate due telecamere a colori con una risoluzione di $1392 \times 512$ pixels, uno scanner laser ed un localizzatore GPS con un'unità di correzione RTK, il tutto orchestrato da un calcolatore su cui girava un database in real time.  Tutto questo hardware è stato montato su una station wagon che è stata guidata per dei normali scenari cittadini. 
+\paragraph{KITTI}  \cite{geiger2012we} Questo dataset è realizzato a partire da hardware usato per la guida autonoma. La particolarità è che offre informazioni tridimensionali dell'ambiente grazie a dei sensori laser dedicati che mappano il territorio circostante. Per la realizzazione sono state  utilizzate due telecamere a colori con una risoluzione di $1392 \times 512$ pixels, uno scanner laser ed un localizzatore GPS con un'unità di correzione \ac{RTK}, il tutto orchestrato da un calcolatore su cui girava un database in real time.  Tutto questo hardware è stato montato su una station wagon che è stata guidata per dei normali scenari cittadini. 
 Inoltre le annotazioni non sono \ac{BB} in due dimensioni, ma dei parallelepipedi che avvolgono gli oggetti. Per la loro realizzazione sono stati presi annotatori umani che hanno posizionato \ac{BB} tridimensionali su oggetti come auto, furgoni, camion, tram, pedoni e ciclisti. Inoltre gli annotatori sono stati istruiti per marcare ogni \ac{BB} come visibile, semi occlusa, occlusa o troncata. 
 
 
@@ -247,7 +253,7 @@ L'estrazione procede dividendo l'immagine in celle non disgiunte e per ognuna di
         \includegraphics[width=.4\textwidth]{images/dog.jpg}
     }
     \subfloat[]{
-        \includegraphics[width=.4\textwidth]{images/dog.png}
+        \includegraphics[width=.4\textwidth]{images/dog copia copia.jpg}
     }
     \caption{Esempio di estrazione feature HOG, a sinistra immagine originale, a destra dopo estrazione delle feature} 
     \label{fig:hog} 
@@ -312,7 +318,9 @@ Tre mesi dopo la presentazione di Fast R-CNN venne presentata un'ulteriore versi
 L'input di una \ac{RPN} è un'intera immagine e l'ouput sono regioni rettangolari con un indice di appartenza ad una determinata classe. 
 In più in Faster R-CNN, grazie all'implementazione di una \ac{RPN}, vengono utilizzate anche le \textit{Anchor Boxes} che semplificano la rilevazione di oggetti con dimensioni differenti. 
 \paragraph{FPN}
-Nel 2017 Lin \textit{et al.} hanno proposto \ac{FPN} \cite{lin2017feature} sulla base di Faster R-CNN. Prima di \ac{FPN} l'idea era di eseguire la rilevazione di oggetti basandosi solamente sull'output dell'ultimo livello dell'estrattore di feature. Tuttavia però alcune informazioni contenute nei layer più profondi della \ac{CNN} possono essere utili, per questo motivo è stata fatta un'architettura top down con connessioni laterali sfruttando la piramidalità intrinseca delle \ac{CNN}. Ora \ac{FPN} è utilizzato in molti modelli, tra cui anche RetinaNet. 
+Nel 2017 Lin \textit{et al.} hanno proposto \ac{FPN} \cite{lin2017feature} sulla base di Faster R-CNN. Prima di \ac{FPN} l'idea era di eseguire la rilevazione di oggetti basandosi solamente sull'output dell'ultimo livello dell'estrattore di feature. Tuttavia però alcune informazioni contenute nei layer più profondi della \ac{CNN} possono essere utili, per questo motivo è stata fatta un'architettura top down con connessioni laterali sfruttando la piramidalità intrinseca delle \ac{CNN}. Ora \ac{FPN} è utilizzato in molti modelli, tra cui anche RetinaNet ovvero il modello usato durante lo sviluppo di questo lavoro di tesi. 
+
+
 \subsection{One Stage Detector}
 \label{subsec:one_stage_detector}
 Lo schema architetturale di un detector a singolo stadio è visibile in Figura \ref{fig:detector_structure} (b). Inizialmente è sempre presente un backbone che servirà ad estrarre le feature dall'immagine in input, però a differenza di \ref{subsec:two_stage_detector} non è più presente una eventuale \ac{RPN}, bensì dal \ac{ROI} pooling layer si passa direttamente a dei layer convoluzionali che si occuperanno di rilevare e classificare l'oggetto di interesse. 
@@ -411,7 +419,7 @@ $$\alpha_t = \begin{cases} \alpha &\text{se $y = 1$} \\ 1 - \alpha &\text{altrim
 Quindi partendo da $\alpha_t$ è possibile definire la nuova \textit{Cross Entropy} bilanciata $\textrm{CE}_b(p_t)=-\alpha_t log(p_t)$. 
 
 Con il termine $\alpha$ si è riusciti quindi a bilanciare gli esempi negativi da quelli positivi, però rimane il problema di bilanciare tra esempi la cui detection è facile o difficile, ovvero quelli per cui abbiamo un valore $p_t$ elevato o basso. Lo scopo quindi è dare poca rilevanza agli esempi facilmente classificabili e molta rilevanza a quelli difficilmente classificabili. Si aggiunge quindi alla \textit{Cross Entropy} un nuovo termine $(1-p_t)^\gamma$ con $\gamma \geq 0$ ottenendo una nuova funzione di loss detta \textit{Focal Loss}:
-$$\textrm{FL}(p_t) = -(1-p_t)^\gamma log(p_t)$$.
+$$\textrm{FL}(p_t) = -(1-p_t)^\gamma log(p_t)$$
 Conducendo un'analisi di questa funzione possiamo affermare che avendo un esempio classificato male ($p_t < 0.5$), il fattore modulativo $(1-p_t)^\gamma$ è vicino a $1$ e la loss rimane più o meno invariata, e quantopiù $p_t$ tende ad $1$ e tantopiù il fattore modulativo sarà vicino a $0$, rendendo così la loss per gli esempi classificati bene meno efficace.
 Possiamo inoltre immaginare $\gamma$ come un parametro che permette di gestire questa riduzione di efficacia. Ponendo $\gamma = 0$ ci si riconduce alla \textit{Cross Entropy}, mentre più si aumenta e più si ottiene la riduzione di efficacia per gli esempi classificati bene. 
 
@@ -437,8 +445,21 @@ Le \textit{Anchor Boxes} sono simili a quelle utilizzate in \cite{lin2017feature
     \item un vettore one-hot di dimensione $K$ come le $K$ classi usate nel task di rilevazione
     \item un vettore di dimensione $4$ contenente le coordinate delle \ac{BB} ottenute per regressione
 \end{itemize}
-Le \textit{Anchor Boxes} vengono assegnate ad una \ac{BB} che fa parte della \textit{ground truth} sulla base dell'indice di Jaccard. Se questo indice è inferiore a $0.4$ allora la \textit{Anchor Boxes} è considerata sfondo, mentre se il valore è compreso tra $0.4$ e $0.5$ è ignorata durante il training.
+
+Le \textit{Anchor Boxes} vengono assegnate ad una \ac{BB} che fa parte della \textit{ground truth} sulla base dell'indice di Jaccard. Se questo indice è inferiore a $0.4$ allora la \textit{Anchor Boxes} è considerata sfondo, mentre se il valore è compreso tra $0.4$ e $0.5$ è ignorata durante il training. In Figura \ref{fig:anchor_retinanet} è presente un grafico esplicativo riguardante la definizione delle \textit{Anchor Boxes} in RetinaNet, mentre in Figura \ref{fig:anchor_retinanet2} è presente un'immagine di esempio che mostra la totalità delle \textit{Anchor Boxes}. 
 Viene assegnato il valore $1$ alla posizione corrispondente alla classe nel vettore one-hot di dimensione $K$ nel caso in cui l'indice di Jaccard di una \textit{Anchor Boxes} rispetto ad una \ac{BB} è superiore a $0.5$
+\begin{figure}[]
+    \centering
+    \includegraphics[width=\textwidth]{images/examples/ab_retinanet1.png}
+    \caption{Definizione di AnchorBoxes in RetinaNet per un sample, tratto da \href{https://medium.com/@14prakash/the-intuition-behind-retinanet-eb636755607d}{medium.com}}
+    \label{fig:anchor_retinanet}
+\end{figure}
+\begin{figure}[]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/examples/ab_retinanet2.png}
+    \caption{Anchor Boxes totali per un'immagine, tratto da \href{https://medium.com/@14prakash/the-intuition-behind-retinanet-eb636755607d}{medium.com}}
+    \label{fig:anchor_retinanet2}
+\end{figure}
 
 \paragraph{Sottorete di classificazione}
 Questa sottorete si occupa di calcolare la probabilità di presenza di un oggetto per ognuna delle \textit{Anchor Boxes} dell'insieme $A$ e per ognuna delle $K$ classi. È realizzata tramite una \ac{FCN} attaccata ad ogni livello della \ac{FPN}. I parametri della rete convoluzionale sono condivisi tra i livelli. 

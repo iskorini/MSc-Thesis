@@ -1,10 +1,28 @@
 \myChapter{Sistema}
 \label{chap:sistema}
 In questa sezione sarà descritta la struttura del sistema utilizzata al fine di realizzare gli esperimenti. Dopo una introduzione ai dataset utilizzati verranno descritte le tecniche utilizzate, in particolare il Transfer Learning e la Data Augmentation. 
+
+\section{Metriche per la Object Detection}
+\label{sec:metrics}
+
+Quando vengono condotti esperimenti di rilevazione di oggetti un aspetto importante è la valutazione delle prestazioni del detector; nel caso della object detection la metrica usata è chiamata \acf{map}. 
+
+Prima di introdurre la \ac{map} è necessario introdurre due altre misure di base: la \textit{precision} e la \textit{recall}.
+La \textit{precision} misura la percentuale di predizioni corrette, mentre la \textit{recall} misura la percentuale di predizioni corrette recuperate rispetto al totale.
+
+Per la \textit{precision} la formula precisa è data da 
+$$P = \frac{\text{True positive}}{\text{True positive} + \text{False positive}}$$
+mentre per la \textit{recall} è data da:
+$$R = \frac{\text{True positive}}{\text{True positive} + \text{False negative}}$$
+Per indicare se le prestazioni di un classificatore sono buone o meno viene valutata la \textit{precision} in funzione della \textit{recall}; l'area sotto questa curva viene chiamata \ac{AP}, che quindi è definita come
+$$AP = \int_{0}^{1} P(R) dR$$
+Attraverso le nozioni appena date è possibile infine definire la \acf{map} come la media tra le \ac{AP} delle varie classi
+$$mAP = \frac{1}{N} \sum_{i=1}^N AP_i$$ 
 \section{Dataset}
 \label{sec:dataset}
 In una prima fase i dataset usati per gli esperimenti sono due. Il primo è \ac{kmpd} \cite{DBLP:conf/cvpr/HwangPKCK15}, 
 per cui è disponibile un'ampia documentazione, il secondo è un dataset gratuito realizzato dalla FLIR \cite{FLIRAdas} per cui è disponibile una documentazione molto stringata. In una seconda fase sono stati utilizzati ai fini di questa tesi un insieme di video termici di \ac{RFI}.
+
 \subsection{\acl{kmpd}}
 \label{subsec:kmpd}
 Il \ac{KAIST} propone in \cite{DBLP:conf/cvpr/HwangPKCK15} un dataset che fornisce coppie di immagini termiche e a colori. La particolarità che offre questo dataset è che le due immagini sono allineate. Inoltre sono state raccolte sufficienti immagini sia diurne che notturne.
@@ -83,7 +101,7 @@ Le annotazioni sono state fatte manualmente da esseri umani ai quali è stato co
 
 \section{Addestramento iniziale di RetinaNet}
 \label{sec:addestramento_iniziale_di_retinanet}
-In questa sezione presenteremo i risultati iniziali dell'addestramento di RetinaNet sui due dataset descritti in sezione \ref{sec:dataset}. Per lo scopo è stata usata una versione di \textit{RetinaNet} implementata tramite \textit{Keras} reperibile in forma originale al seguente \href{https://github.com/fizyr/keras-retinanet}{link}. Durante lo sviluppo del lavoro di tesi le modifiche al codice originale sono state molteplici, tanto da aver richiesto un \textit{fork} della \textit{repository} originale reperibile al seguente \href{https://github.com/iskorini/keras-retinanet}{link}. Per tenere traccia dell'addestramento è stato usato \href{https://www.wandb.com}{\textit{Weight \& Biases}}.
+In questa sezione presenteremo i risultati iniziali dell'addestramento di RetinaNet sui due dataset descritti in sezione \ref{sec:dataset}. Per lo scopo è stata usata una versione di \textit{RetinaNet} implementata tramite \textit{Keras} reperibile in forma originale al seguente \href{https://github.com/fizyr/keras-retinanet}{link}:\href{https://github.com/fizyr/keras-retinanet}{https://github.com/fizyr/keras-retinanet}. Durante lo sviluppo del lavoro di tesi le modifiche al codice originale sono state molteplici, tanto da aver richiesto un \textit{fork} della \textit{repository} originale reperibile al seguente \href{https://github.com/iskorini/keras-retinanet}{link}:\href{https://github.com/iskorini/keras-retinanet}{https://github.com/iskorini/keras-retinanet}. Per tenere traccia dell'addestramento è stato usato il servizio web \href{https://www.wandb.com}{\textit{Weight \& Biases}}.
 
 \subsection{Transfer Learning}
 \label{subsec:transfer_learning}
@@ -176,7 +194,7 @@ In Tabella \ref{table:TransferLearning} sono riassunte tutte le caratteristiche 
     Induttivo          & Multitask Learning   & SI                           & SI                         & Regressione e Classificazione        \\ \cline{2-5} 
                        & Self-taught Learning & NO                           & SI                         & Regressione e Classificazione        \\ \hline
     Trasduttivo        & Domain adaptation    & SI                           & NO                         & Regressione e Classificazione        \\ \hline
-    Non supervisionato & 46501                & NO                           & NO                         & Clustering, dimensionality reduction \\ \hline
+    Non supervisionato & Nessuna                & NO                           & NO                         & Clustering, dimensionality reduction \\ \hline
     \end{tabular}}
     \caption{Schema riassuntivo delle categorie di Transfer Learning}
     \label{table:TransferLearning}
@@ -205,7 +223,7 @@ Dopo la fase di addestramento sono stati eseguite le valutazioni sulla parte di 
     Cyclist     & 1396              & 0.1154 \\ \hline
     Complessivo & 46501             & 0.4093 \\ \hline
     \end{tabular}
-    \caption{Test complessivo delle performance dopo l'addestramento}
+    \caption{Test complessivo su immagini RGB delle performance di RetinaNet dopo l'addestramento effettuato su immagini RGB}
     \label{table:first_test}
 \end{table}
 
@@ -231,7 +249,7 @@ La valutazione è stata anche effettuata in maniera separata sia sulla parte di 
         Complessivo & 12085             & 0.3125 \\ \hline
         \end{tabular}
     }
-    \caption{Risultati della valutazione separata}
+    \caption{Risultati della valutazione separata tra giorno e notte sulle immagini RGB dopo l'addestramento di RetinaNet effettuato su immagini RGB}
     \label{table:separate_test}
 \end{table}
 
@@ -294,7 +312,7 @@ I risultati della valutazione sul test set sono mostrati in maniera complessiva 
     Cyclist     & 1396              & 0.0392 \\ \hline
     Complessivo & 54839             & 0.3580 \\ \hline
     \end{tabular}
-    \caption{Test complessivo delle performance dopo l'addestramento}
+    \caption{Test complessivo sul termico delle performance dopo l'addestramento di RetinaNet sulle immagini termiche del dataset \ac{kmpd}}
     \label{table:first_test_lwir_kaist}
 \end{table}
 La spiegazione di questo calo delle performance si ottiene analizzando i risultati della valutazione separata effettuata sulla parte di dataset diurna e notturna, presente in Tabella \ref{table:separate_test_lwir_kaist}. 
@@ -318,7 +336,7 @@ La spiegazione di questo calo delle performance si ottiene analizzando i risulta
         Complessivo & 15219             & 0.4288 \\ \hline
         \end{tabular}
     }
-    \caption{Risultati della valutazione separata}
+    \caption{Risultati della valutazione separata tra giorno e notte, effettuata sul dataset termico di \ac{kmpd}, dopo l'addestramento di RetinaNet sulle immagini termiche del dataset \ac{kmpd}}
     \label{table:separate_test_lwir_kaist}
 \end{table}
 Guardando la Tabella \ref{table:separate_test_lwir_day} si osserva un drastico calo della \ac{map} nella parte diurna, mentre in Tabella \ref{table:separate_test_lwir_night} abbiamo un leggero incremento. La differenza è causata dal delta di temperatura tra il pedone e ciò che lo circonda: di giorno, quando la temperatura atmosferica è più alta rispetto alla notte, questa differenza di temperatura è ovviamente più bassa, rendendo così il pedone, o chi per lui, più difficilmente riconoscibile. Di notte invece accade l'esatto contrario: la temperatura atmosferica è generalmente più bassa, quindi aumenta il delta di temperatura tra il pedone e l'ambiente circostante, rendendolo più facilmente riconoscibile. Considerazioni simili possono essere fatte sull'analisi svolta sulla parte di dataset RGB in quanto di notte, essendoci poca luce, si fatica di più a riconoscere un oggetto che non è illuminato, di giorno invece accade l'esatto contrario.

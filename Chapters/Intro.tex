@@ -9,16 +9,38 @@ di un cervello umano allo scopo di sostituirlo per quei compiti che possono esse
 Il cervello umano è composto da neuroni connessi tra di loro che formano una rete, uno di questi componenti è schematizzato sinteticamente in Figura \ref{fig:neurone}. 
 \begin{figure}[]
     \centering
-    \includegraphics[width = \textwidth]{images/neurone.png}
+    \includegraphics[width = 0.7\textwidth]{images/neurone.png}
     \caption{Schema di un neurone}
     \label{fig:neurone}
 \end{figure}
 All'interno di un neurone gli impulsi elettrici scorrono fino ad arrivare dall'assone, dopodiché sono modulati dalle sinapsi ed infine arrivano ai dendriti degli altri neuroni connessi ad esso formando una rete.
 
-Una rete neurale artificiale prende come modello il cervello umano quindi è composta da tanti neuroni artificiali analoghi ad un neurone biologico; essi ricevono in input dei dati che vengono 
-modulati da dei \textit{pesi} ed infine passando per una \textit{funzione di attivazione} vengono restituiti in output ad altri neuroni artificiali. 
+Una rete neurale artificiale, similmente ad un cervello umano, quindi è composta da tanti neuroni artificiali analoghi ad un neurone biologico; essi ricevono in input dei dati che vengono 
+modulati da dei \textit{pesi} ed infine passando per una \textit{funzione di attivazione} vengono restituiti in output ad altri neuroni artificiali. Lo schema di un neurone artificiale è in Figura \ref{fig:neuron_artificial}; gli input $x_i$ vengono combinati linearmente tramite i corrispettivi pesi $w_i$ ed infine passando per la funzione di attivazione $\sigma$ restituiscono un output. 
+\begin{figure}
+    \centering
+    \begin{tikzpicture}
+        \node[rectangle](x1){$x_1$};
+        \node[rectangle, below of = x1](x2){$x_2$};
+        \node[rectangle, below of = x2](x3){$x_3$};
+        \node[rectangle, below of = x3](x4){$x_4$};
+        \node[rectangle, below of = x4](x5){$x_5$};
+        \node[circle, draw, ultra thick, fill=gray!20, right = 2.5cm of x3](sigma) {$\Sigma$};
+        \draw [->] (x1) edge[] node[ fill=white, anchor=center, pos=0.35] {$\omega_1$} (sigma);
+        \draw [->] (x2) edge[] node[ fill=white, anchor=center, pos=0.35] {$\omega_2$} (sigma);
+        \draw [->] (x3) edge[] node[ fill=white, anchor=center, pos=0.35] {$\omega_3$} (sigma);
+        \draw [->] (x4) edge[] node[ fill=white, anchor=center, pos=0.35] {$\omega_4$} (sigma);
+        \draw [->] (x5) edge[] node[ fill=white, anchor=center, pos=0.35] {$\omega_5$} (sigma);
+        \node[circle, draw, ultra thick, fill=gray!20, right = 4cm of sigma](sigmam) {$\sigma$};
+        \draw [->, thick] (sigma)  edge[] node[ fill=white, anchor=center, pos=0.5] {$y = \omega^T x$} (sigmam);
+        \node[right = 1cm of sigmam](out) {$\sigma(y)$};
+        \draw[->, thick] (sigmam) -- (out);
+    \end{tikzpicture}
+    \caption{Neurone artificiale}
+    \label{fig:neuron_artificial}
+\end{figure}
 
-Un esempio di utilizzo può essere la guida autonoma: molte case costruttrici, integrando hardware molto potente in situazioni critiche, riescono ad  adottare reti neurali per realizzare veicoli sempre più sicuri e per ridurre l'intervento umano in casi di emergenza o durante lunghi viaggi. 
+Un esempio di utilizzo delle reti neurali può essere la guida autonoma: molte case costruttrici, integrando hardware molto potente in situazioni critiche, riescono ad  adottare reti neurali per realizzare veicoli sempre più sicuri e per ridurre l'intervento umano in casi di emergenza o durante lunghi viaggi. 
 Lo stato dell'arte in ambito consumer sulla guida autonoma è stato raggiunto dall'americana \textit{Tesla} con il suo \textit{AutoPilot} che, 
 grazie a nove telecamere posizionate attorno alla vettura, riesce a raggiungere un livello di autonomia mai visto prima.
 Altri utilizzi possono essere la videosorveglianza, dove riconoscere intrusioni di persone o vetture all'interno di un perimetro diventa un compito critico e molto importante che fino a pochi anni fa era prerogativa esclusiva di esseri umani. 
@@ -31,3 +53,4 @@ Il nostro interesse sarà focalizzato sul miglioramento del riconoscimento di og
     \item all'interno Capitolo 2 si descrive l'organizzazione del sistema su cui abbiamo lavorato per lo sviluppo della tesi, in particolare si affrontano più analiticamente i dataset e le tecniche utilizzate. 
     \item il Capitolo 3 riguarda invece gli esperimenti effettuati usando come base ciò che è stato descritto nel precedente capitolo. 
 \end{itemize}
+

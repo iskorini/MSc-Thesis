@@ -1,7 +1,7 @@
-\chapter{Esperimenti}
+\myChapter{Esperimenti}
 \label{chap:experiment}
 In questo capitolo verranno descritti ed analizzati gli esperimenti svolti durante lo sviluppo di questa tesi. La prima fase ha richiesto un'analisi dal punto di vista pratico dei dataset descritti in Sezione \ref{sec:dataset} seguita da una fase di preprocessing. 
-Infine, dopo aver reso i dataset usabili, sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map}. Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
+Infine, dopo aver reso i dataset usabili, sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map} (\ref{sec:metrics}). Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
 \section{Organizzazione dei dataset}
 \label{sec:dataset_org}
 I dataset utilizzati nello sviluppo del progetto di tesi sono stati descritti in Sezione \ref{sec:dataset}; descriveremo ora gli stessi insiemi di dati ma dal punto di vista delle operazioni preliminari che sono state necessarie per renderli utilizzabili e conformi tra di loro in maniera da poter effettuare gli esperimenti. 
@@ -28,7 +28,7 @@ Al fine di rispecchiare il più possibile la divisione originale tra giorno e no
     Diurne & SET00 & SET01 & SET02 & SET06 & SET07 & SET08 \\ \hline
     Notturne & SET03 & SET04 & SET05 & SET09 & SET10 & SET11
     \end{tabular}
-    \caption{Suddivisione giorno notte di KAIST}
+    \caption{Suddivisione giorno notte di \ac{kmpd}}
     \label{table:day_night_kaist}
 \end{table}
 Sono state quindi selezionate casualmente $200$ immagini per ognuna delle cartelle \texttt{SET00/V000}, \texttt{SET05/V000}, \texttt{SET06/V001}, \texttt{SET08/V000} e \texttt{SET09/V000} e -- tramite lo strumento \ac{VIA} \cite{dutta2019vgg, dutta2016via} messo a disposizione gratuitamente -- sono state annotate tutte le auto, furgoni e bus non eccessivamente occlusi. 
@@ -139,7 +139,7 @@ I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione 
     \multicolumn{1}{|c|}{Cyclist} & 471 & 0.0001 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 6250 & 0.1747 \\ \hline
     \end{tabular}
-    \caption{Risultati del primo esperimento su FLIR}
+    \caption{\ac{map} calcolata sul dataset FLIR partendo dai pesi di RetinaNet addestrato su \ac{kmpd} termico}
     \label{tab:first_experiment_flir}
 \end{table}
 La Figura \ref{fig:precision_recall_person_1} mostra la curva di precision-recall al variare della soglia di rilevamento, e si nota immediatamente una mancanza sia di precisione che di richiamo. Possiamo inoltre notare che se abbiamo maggior esempi classificati per via una soglia più bassa otteniamo una scarsa precisione sintomo che queste ultime rilevazioni sono in parte false; situazione contraria si verifica invece quando si aumenta la soglia di rilevamento con lo svantaggio però che in generale si ha una \textit{recall} minore.  
@@ -189,7 +189,7 @@ Rispetto ai risultati mostrati in precedenza (Tabella \ref{tab:first_experiment_
     \multicolumn{1}{|c|}{Cyclist} & 471 & 0.769743 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 6250 & 0.672592 \\ \hline
     \end{tabular}
-    \caption{Risultati di FLIR da COCO con soglia $0.3$}
+    \caption{\ac{map} sul dataset FLIR dopo l'addestramento di RetinaNet partendo dai pesi del dataset \ac{MSCOCO}. Soglia di rilevamento pari a $0.3$.}
     \label{table:coco_result_best_flir}
 \end{table}
 
@@ -227,7 +227,7 @@ La prima cosa che si nota è l'andamento molto simile rispetto all'esperimento p
     \multicolumn{1}{|c|}{Cyclist} & 471 & 0.730898 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 6250 & 0.621680 \\ \hline
     \end{tabular}
-    \caption{Risultati migliori dell'addestramento su FLIR partendo dai pesi di KAIST, soglia $0.3$}
+    \caption{\ac{map} sul dataset FLIR dopo l'addestramento di RetinaNet partendo dai pesi precedenti ottenuti tramite train su \ac{kmpd}}
     \label{table:best_flir_from_kaist}
 \end{table}
 
@@ -240,7 +240,7 @@ La prima cosa che si nota è l'andamento molto simile rispetto all'esperimento p
     \multicolumn{1}{|c|}{Cyclist}     & 0.0001   & 0.7697  & 0.7308        \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.1747   & 0.6725  & 0.6216        \\ \hline
     \end{tabular}}
-    \caption{Risultati complessivi su FLIR}
+    \caption{Tabella riassuntiva dei risultati ottenuti tramite RetinaNet sul dataset di FLIR}
     \label{tab:flir_comp}
 \end{table}
 
@@ -282,7 +282,7 @@ Infine riassumiamo in Tabella \ref{tab:best_kmpd_flir} i migliori risultati otte
     \multicolumn{1}{|c|}{Cyclist} & 0.7697 & 0.0387 & 0.0440 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.6725 & 0.3353 & 0.4288 \\ \hline
     \end{tabular}
-    \caption{Migliori risultati ottenuti su persone e ciclisti}
+    \caption{Tabella riassuntiva delle migliori \ac{map} ottenute fino ad ora sui dataset di \ac{kmpd} termico e FLIR}
     \label{tab:best_kmpd_flir}
 \end{table}
 
@@ -299,7 +299,7 @@ Il primo test effettuato consiste nel fissare una baseline data dall'addestramen
     \multicolumn{1}{|c|}{Cars} & 1088 & 0.5716 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 6250 & 0.4863 \\ \hline
     \end{tabular}
-    \caption{Baseline per la rilevazione di vetture su KAIST}
+    \caption{Baseline per la rilevazione di vetture su \ac{kmpd}. Test effettuato su \ac{kmpd} usando RetinaNet addestrata su FLIR.}
     \label{table:baseline_car_kaist}
 \end{table} 
 
@@ -321,7 +321,7 @@ Vista la repentina discesa delle loss e la scarsità di dati a disposizione è f
     \multicolumn{1}{|c|}{Cars (1088)} & 0.6767 & \textbf{0.6929} & 0.6854 & 0.6787 & 0.6870 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.5983 & \textbf{0.6113} & 0.6058 & 0.6070 & 0.6080 \\ \hline
     \end{tabular}
-    \caption{Risultati del fine tuning su kaist annotato manualmente}
+    \caption{Test di RetinaNet dopo il fine tuning, partendo da FLIR, sulla parte di dataset di \ac{kmpd} annotato con le vetture. In grassetto i risultati migliori per classe. Tra parentesi il numero di istanze per classe.}
     \label{tab:fine_tuning_kaist_flir}
 \end{table}
 \begin{table}[]
@@ -334,7 +334,7 @@ Vista la repentina discesa delle loss e la scarsità di dati a disposizione è f
     \multicolumn{1}{|c|}{Cars (1088)} & 0.6929 & 0.5716 & +21\% \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.6113 & 0.4863 & +25\% \\ \hline
     \end{tabular}
-    \caption{Incremento rispetto alla baseline dopo fine tuning}
+    \caption{Tabella riassuntiva dell'incremento ottenuto effettuando il fine tuning da FLIR a \ac{kmpd}. Tra parentesi il numero di istanze per classe. }
     \label{tab:fine_tuning_kaist_flir_increment}
 \end{table}
 
@@ -464,7 +464,7 @@ Effettuando tre diverse fasi di addestramento ognuna con una policy diversa si o
         Cars (1088) & \cellcolor[HTML]{9AFF99}\textbf{0.7195} & 0.6942 & 0.6792 & 0.6805 & 0.6728 & 0.6605 & 0.6703 & 0.6693 & 0.5603 & 0.6506 & 0.6564 & 0.6505 & 0.6254 & 0.6264 & 0.6265 \\ \hline
         Complessivo & \cellcolor[HTML]{9AFF99}\textbf{0.6167} & 0.6037 & 0.6002 & 0.6080 & 0.5973 & 0.5857 & 0.5906 & 0.5941 & 0.4855 & 0.5940 & 0.5888 & 0.5844 & 0.5677 & 0.5726 & 0.5726 \\ \hline
         \end{tabular}}
-    \caption{Risultati complessivi di AutoAugment su KAIST}
+    \caption{\ac{map} ottenute tramite l'utilizzo delle varie policy predefinite di AutoAugment sul dataset di \ac{kmpd}. La base di partenza sono i migliori risultati ottenuti fino ad ora sulla parte di dataset di \ac{kmpd} con le annotazioni sulle vetture.}
     \label{table:aa_kaist}
 \end{table}
 
@@ -479,7 +479,7 @@ Effettuando tre diverse fasi di addestramento ognuna con una policy diversa si o
     \multicolumn{1}{|c|}{Cars (1088)} & 0.6929 & 0.7195 & +3.8\% \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.6113 & 0.6167 & +0.8\% \\ \hline
     \end{tabular}
-    \caption{Incremento rispetto alla baseline dopo fine tuning}
+    \caption{Variazioni rispetto alla baseline dopo l'utilizzo di AutoAugment sul dataset di \ac{kmpd} con le annotazioni sulle vetture.}
     \label{table:AA_increment}
 \end{table}
 
@@ -497,7 +497,7 @@ Un ulteriore esperimento effettuato con AutoAugment è relativo al miglioramento
      & EP 05 & EP 20 & EP 20 & EP 50 & EP 63 & NO AA\\ \hline
     \multicolumn{1}{|c|}{Person (755)} & 0.3342 & 0.2516 & 0.3619 & 0.3270 & 0.3531 & 0.3730 \\ \hline
     \end{tabular}
-    \caption{Test di transfer learning da FLIR addestrato con AA V2 a KAIST (soglia 0.3)}
+    \caption{Risultati del test su \ac{kmpd} usando RetinaNet addestrato con e senza la policy di AutoAugment V2 sul dataset di FLIR.}
     \label{table:tl_flir_kaist_aav2}
 \end{table}
 
@@ -513,7 +513,7 @@ L'ultimo esperimento effettuato con AutoAugment parte dai pesi di quello precede
     \multicolumn{1}{|c|}{Cars (1088)} & 0.5250 & 0.5395 & 0.5360 & 0.5383 & 0.5462 & 0.5427 & 0.5454 & 0.5387 & 0.5399 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.5131 & 0.5150 & 0.5135 & 0.5167 & 0.5158 & 0.5148 & 0.5239 & 0.5129 & 0.5157 \\ \hline
     \end{tabular}}
-    \caption{Test dopo ulteriore fine tuning su KAIST}
+    \caption{Test di RetinaNet su \ac{kmpd} dopo un fine tuning partendo dai pesi del precedente addestramento realizzato su FLIR con AutoAugment V2.}
     \label{table:fine_tuning_aav2_kaist}
 \end{table}
 
@@ -526,7 +526,7 @@ Il target dell'ottimizzatore è la minimizzazione della \ac{map} moltiplicata pe
 \begin{figure}[]
     \centering
     \includegraphics[width=0.9\textwidth]{images/graphic/mAP_comet.jpeg}
-    \caption{\ac{map} al variare degli iperparametri}
+    \caption{\ac{map} al variare degli iperparametri durante l'ottimizzazione di RandAugment usando come target la \ac{map} complessiva ottenuta sul dataset \ac{kmpd}}
     \label{fig:map_comet_ml}
 \end{figure}
 
@@ -551,7 +551,7 @@ Con RandAugment è stato effettuato un ulteriore esperimento per verificare se e
             }
     \end{minipage}
     \centering
-    \caption{Seconda ottimizzazione di RandAugment}
+    \caption{Andamento del processo di ottimizzazione di RandAugment sulla classe \texttt{person}}
     \label{fig:RA_2}
 \end{figure}
 
@@ -560,7 +560,7 @@ Dopo questa nuova fase di ricerca di iperparametri è stata effettuata una nuova
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/map_person_ra.pdf}
-    \caption{Risultati di RandAugment su \texttt{person}}
+    \caption{Risultati ottenuti su \ac{kmpd} tramite l'ottimizzazione specifica di RandAugment su \texttt{person}}
     \label{fig:ra_person}
 \end{figure}
 
@@ -592,14 +592,10 @@ L'andamento è del tutto similare a quanto ottenuto con l'ottimizzazione effettu
         }
     \end{minipage}%
     \centering
-    \caption{Terza ottimizzazione di RandAugment}
+    \caption{Risultati ottenuti su \ac{kmpd} tramite l'ottimizzazione specifica di RandAugment su \texttt{cars}}
     \label{fig:RA_3}
 \end{figure}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% LO RIFACCIO SULLE CARS?
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \paragraph{Generative Adversarial Network}
 Con le \acf{GAN} si fa riferimento ad una classe di metodi basati su Reti Neurali introdotti da \textit{Ian Goodfellow} \cite{goodfellow2014generative} nel 2014 il cui scopo è generare nuovi dati. Scendendo un po' più nel dettaglio si hanno in particolare due reti che competono tra di loro: una rete generatrice $\mathcal{G}$ ed una rete discriminatrice $\mathcal{D}$. La rete $\mathcal{G}$, come si può intuire dal nome, si occupa di generare nuovi dati. La rete $\mathcal{D}$ invece si occupa di riconoscere dati reali da dati artificiali. Nvidia ha recentemente rilasciato \href{https://www.thispersondoesnotexist.com/}{un'applicazione web} \cite{Karras2019stylegan2} che facendo uso di \ac{GAN} genera volti di persone con risultati piuttosto impressionanti. 
@@ -633,19 +629,21 @@ Partendo dalle immagini catturate dalle telecamere RGB sono state quindi generat
     \label{fig:gan}
 \end{figure}
 
-Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un'addestramento di RetinaNet partendo da zero, vale a dire senza effettuare alcun tipo di transfer learning. 
-I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia che le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. 
+Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un addestramento di RetinaNet partendo da zero, vale a dire senza effettuare alcun tipo di transfer learning. 
+I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia che le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. Il risultato in Tabella \ref{tab:result_GAN_scratch} evidenzia come, attraverso un dataset generato da una \ac{GAN}, si ottengono risultati migliori rispetto ad avere solo il termico; considerato che i dataset termici sono molto pochi usare una \ac{GAN} per generare un dataset \textit{falso} è una valida alternativa.
 \begin{table}[]
-    \begin{tabular}{c|c|c|c|c|c|c|c|}
-    \cline{2-8}
-     & 1 & 5 & 10 & 15 & \textbf{24} & \textbf{27} & 30 \\ \hline
-    \multicolumn{1}{|c|}{Person} & 0.0086 & 0.1018 & 0.1344 & 0.1635 & 0.1767 & 0.1763 & 0.1817 \\ \hline
-    \multicolumn{1}{|c|}{Cars} & 0.1699 & 0.4014 & 0.3888 & 0.4086 & 0.4146 & 0.4573 & 0.4478 \\ \hline
-    \end{tabular}
-    \caption{Risultati dopo addestramento su GAN}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{c|c|c|c|c|c|c|c|c|}
+    \cline{2-9}
+     & NOGAN & EP 1 & EP 5 & EP 10 & EP 15 & \textbf{EP 24} & \textbf{EP 27} & EP 30 \\ \hline
+    \multicolumn{1}{|c|}{Person} & 0.1387 & 0.0086 & 0.1018 & 0.1344 & 0.1635 & 0.1767 & 0.1763 & 0.1817 \\ \hline
+    \multicolumn{1}{|c|}{Cars} & 0.1358 & 0.1699 & 0.4014 & 0.3888 & 0.4086 & 0.4146 & 0.4573 & 0.4478 \\ \hline
+    \end{tabular}}
+    \caption{Risultati del test di RetinaNet sul dataset di \ac{kmpd} dopo una fase di addestramento su dati generati da \ac{GAN}. Nella colonna \textit{NOGAN} sono presenti i risultati ottenuti addestrando solamente sulla parte di \ac{kmpd} visibile e testando sul termico reale.}
     \label{tab:result_GAN_scratch}
 \end{table}
-Infatti dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan}, e come è possibile osservare non si ottiene alcuna miglioria, in nessuna delle classi. 
+
+Dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan}, e come è possibile osservare non si ottiene alcuna miglioria, in nessuna delle classi. 
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/graphics_GAN.pdf}
