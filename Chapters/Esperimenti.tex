@@ -1,7 +1,7 @@
 \myChapter{Esperimenti}
 \label{chap:experiment}
 In questo capitolo verranno descritti ed analizzati gli esperimenti svolti durante lo sviluppo di questa tesi. La prima fase ha richiesto un'analisi dal punto di vista pratico dei dataset descritti in Sezione \ref{sec:dataset} seguita da una fase di preprocessing. 
-Infine, dopo aver reso i dataset usabili, sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map} (\ref{sec:metrics}). Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
+Infine, dopo aver reso i dataset usabili, sono stati effettuati gli esperimenti usando varie tecniche allo scopo di incrementare sempre di più la \acl{map} (Sezione \ref{sec:metrics}). Per tutti gli esperimenti, dove non specificato, è stata impostata una soglia di rilevamento a $0.3$.
 \section{Organizzazione dei dataset}
 \label{sec:dataset_org}
 I dataset utilizzati nello sviluppo del progetto di tesi sono stati descritti in Sezione \ref{sec:dataset}; descriveremo ora gli stessi insiemi di dati ma dal punto di vista delle operazioni preliminari che sono state necessarie per renderli utilizzabili e conformi tra di loro in maniera da poter effettuare gli esperimenti. 
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 I video termici forniti per il progetto di ricerca della tesi sono stati girati da telecamere \textit{Foshvision FS-UV535R104A Thermal Bi-spectrum} e \textit{HikVision DS-2TD2866-25 Thermal Bi-spectrum Network Bullet Camera} sul circuito di test di \ac{RFI} di San Donato a Bologna.
 Il formato in cui sono stati forniti i video è \texttt{mp4}, quindi per renderli usabili da RetinaNet è stato reso necessario l'utilizzo del software \texttt{ffmpeg} per estrarre i singoli frame. 
 
-Per realizzare una fase di fine tuning sulla rete, analogamente a quello fatto in Sezione \ref{subsec:kaist_experiment}, sono stati annotati manualmente degli operai a lavoro su un unico video.
+Per realizzare una fase di fine tuning su tutti i layer della rete, analogamente a quello fatto in Sezione \ref{subsec:kaist_experiment}, sono stati annotati manualmente degli operai a lavoro su un unico video.
 Il video in questione, della durata di circa $15$ minuti può essere segmentato in tre parti. La prima, che arriva circa fino al minuto $8$ non contiene alcun operaio o oggetto su cui è possibile realizzare annotazioni. La seconda parte, che inizia dal minuto 8 e si conclude quasi alla fine, vede degli operai che lavorano sulla linea ferroviaria. L'ultima parte è simile alla prima in quanto gli operai hanno finito il loro lavoro e non sono più nella scena ripresa dalla telecamera. 
 Sempre come in Sezione \ref{subsec:kaist_experiment} sono state selezionate casualmente delle immagini. Dalla prima parte del video sono state selezionate $200$ immagini, dalla seconda $400$ e dall'ultima che è la più corta $100$. Le annotazioni anche in questo caso sono state realizzate con \ac{VIA}, solamente sulla seconda parte di video e solamente con la classe \texttt{person}.
  
@@ -101,7 +101,7 @@ L'obbiettivo di questa prima sperimentazione è consistito nel provare i risulta
     \caption{MAP al variare del valore di soglia su FLIR}
     \label{fig:map_first_flir_lwir}
 \end{figure}
-I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione dei ciclisti. La motivazione principale è la carenza di esempi su quest'ultimi in quanto ce ne sono molto pochi rispetto ai pedoni; un'altra motivazione degli scarsi risultati ottenuti è imputabile al diverso formato dell'annotazione in quanto su FLIR la \ac{BB} viene posta solamente sul ciclista, mentre su \ac{kmpd} sul ciclista più il mezzo. I risultati migliori comunque si ottengono con una soglia pari a $0.3$; in Figura \ref{fig:examples_first} mostriamo alcuni esempi di immagini annotate e classificate da RetinaNet, mentre in Tabella \ref{tab:first_experiment_flir} sono presenti i valori più dettagliati rispetto al miglior risultato. 
+I risultati sono abbastanza deludenti, soprattutto sul fronte della rilevazione dei ciclisti. La motivazione principale è la carenza di esempi su quest'ultimi soprattutto se paragonati ai pedoni; un'altra motivazione degli scarsi risultati ottenuti è imputabile al diverso formato dell'annotazione in quanto su FLIR la \ac{BB} viene posta solamente sul ciclista, mentre su \ac{kmpd} sul ciclista più il mezzo. I risultati migliori comunque si ottengono con una soglia pari a $0.3$; in Figura \ref{fig:examples_first} mostriamo alcuni esempi di immagini annotate e classificate da RetinaNet, mentre in Tabella \ref{tab:first_experiment_flir} sono presenti i valori più dettagliati rispetto al miglior risultato. 
 \begin{figure}[]
     \centering
     \makebox[\textwidth]{
@@ -303,11 +303,11 @@ Il primo test effettuato consiste nel fissare una baseline data dall'addestramen
     \label{table:baseline_car_kaist}
 \end{table} 
 
-Il passo successivo è stata una fase di \textit{fine tuning} di questi pesi sulla parte di train di \ac{kmpd} annotata manualmente con le vetture. Come si può vedere in Figura \ref{fig:fine_tuning_kaist_flir}, l'addestramento ha avuto una durata relativamente corta in quanto con solamente $15$ ore e $18$ epoche è arrivato al termine.
+Il passo successivo è stata una fase di \textit{fine tuning} su tutta la rete di questi pesi sulla parte di train di \ac{kmpd} annotata manualmente con le vetture. Come si può vedere in Figura \ref{fig:fine_tuning_kaist_flir}, l'addestramento ha avuto una durata relativamente corta in quanto con solamente $15$ ore e $18$ epoche è arrivato al termine.
 \begin{figure}[]
     \centering
     \includegraphics[width=\textwidth]{images/graphic/fine_tuning_kaist_flir.pdf}
-    \caption{Fine tuning di KAIST partendo da FLIR}
+    \caption{Fine tuning su tutta la rete usando \ac{kmpd} partendo da FLIR}
     \label{fig:fine_tuning_kaist_flir}
 \end{figure}
 Vista la repentina discesa delle loss e la scarsità di dati a disposizione è facile incorrere in un fenomeno di overfitting, ed infatti è quello che è accaduto. In Tabella \ref{tab:fine_tuning_kaist_flir} sono mostrati i risultati per alcune epoche di questa fase di addestramento, in grassetto ci sono i risultati migliori per ogni categoria. Come si può vedere nell'epoca $18$, ovvero l'ultima, non si raggiungono picchi di \ac{map}, il che è un sintomo di scarsa capacità di generalizzazione. Riguardo la classe \texttt{person} e \texttt{cyclist} il risultato migliore si ha all'epoca $8$. Invece riguardo la rilevazione di automobili si ha il risultato migliore all'epoca $10$. Si può notare inoltre che sia riguardo le persone che le automobili c'è stato un incremento nelle prestazioni della detection (Tabella \ref{tab:fine_tuning_kaist_flir_increment}). 
@@ -321,7 +321,7 @@ Vista la repentina discesa delle loss e la scarsità di dati a disposizione è f
     \multicolumn{1}{|c|}{Cars (1088)} & 0.6767 & \textbf{0.6929} & 0.6854 & 0.6787 & 0.6870 \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.5983 & \textbf{0.6113} & 0.6058 & 0.6070 & 0.6080 \\ \hline
     \end{tabular}
-    \caption{Test di RetinaNet dopo il fine tuning, partendo da FLIR, sulla parte di dataset di \ac{kmpd} annotato con le vetture. In grassetto i risultati migliori per classe. Tra parentesi il numero di istanze per classe.}
+    \caption{Test di RetinaNet dopo il fine tuning di tutta la rete, partendo da FLIR, sulla parte di dataset di \ac{kmpd} annotato con le vetture. In grassetto i risultati migliori per classe. Tra parentesi il numero di istanze per classe.}
     \label{tab:fine_tuning_kaist_flir}
 \end{table}
 \begin{table}[]
@@ -334,7 +334,7 @@ Vista la repentina discesa delle loss e la scarsità di dati a disposizione è f
     \multicolumn{1}{|c|}{Cars (1088)} & 0.6929 & 0.5716 & +21\% \\ \hline
     \multicolumn{1}{|c|}{Complessivo} & 0.6113 & 0.4863 & +25\% \\ \hline
     \end{tabular}
-    \caption{Tabella riassuntiva dell'incremento ottenuto effettuando il fine tuning da FLIR a \ac{kmpd}. Tra parentesi il numero di istanze per classe. }
+    \caption{Tabella riassuntiva dell'incremento ottenuto effettuando il fine tuning di rutta la rete da FLIR a \ac{kmpd}. Tra parentesi il numero di istanze per classe. }
     \label{tab:fine_tuning_kaist_flir_increment}
 \end{table}
 
@@ -501,7 +501,7 @@ Un ulteriore esperimento effettuato con AutoAugment è relativo al miglioramento
     \label{table:tl_flir_kaist_aav2}
 \end{table}
 
-L'ultimo esperimento effettuato con AutoAugment parte dai pesi di quello precedentemente descritto (Figura \ref{fig:AA_v2}, Tabella \ref{table:tl_flir_kaist_aav2}) realizzando una fase di \textit{fine tuning} sul dataset di KAIST. In Tabella \ref{table:fine_tuning_aav2_kaist} sono presenti i risultati di questa ultima fase, e come si può vedere non si ottiene alcun miglioramento. 
+L'ultimo esperimento effettuato con AutoAugment parte dai pesi di quello precedentemente descritto (Figura \ref{fig:AA_v2}, Tabella \ref{table:tl_flir_kaist_aav2}) realizzando una fase di \textit{fine tuning} di tutti i layer della rete sul dataset di KAIST. In Tabella \ref{table:fine_tuning_aav2_kaist} sono presenti i risultati di questa ultima fase, e come si può vedere non si ottiene alcun miglioramento. 
 
 \begin{table}[]
     \resizebox{\textwidth}{!}{%
@@ -522,7 +522,7 @@ RandAugment, come precedentemente descritto in Sezione \ref{subsec:rand_augment}
 
 In questo caso si hanno solo due parametri $N$ ed $M$, con il primo che indica il numero di operazioni da applicare, ed il secondo la potenza con cui applicarle. Ci si riconduce in breve ad un problema di ottimizzazione di iperparametri risolvibile anche con un algoritmo GridSearch. In questa tesi però è stata usata la piattaforma \href{http://www.comet.ml}{Comet.ml} che implementa una serie di algoritmi per realizzare ottimizzazione. L'algoritmo scelto è stato quello che la piattaforma definisce il migliore, un algoritmo di tipo \textit{bayesiano} su cui non vengono rilasciati ulteriori dettagli.
 
-Il target dell'ottimizzatore è la minimizzazione della \ac{map} moltiplicata per $-1$, in pratica quindi è la massimizzazione della metrica. L'intero processo ha avuto una durata di circa $130$ ore consecutive in quanto l'ambiente è stato impostato per eseguire una fase di training di $7$ epoche seguita da un test per la valutazione delle performance, partendo dai pesi di RetinaNet preaddestrata su \ac{MSCOCO}. Il tutto è stato realizzato sulla parte di dataset di \ac{kmpd} con le annotazioni delle automobili. Un sommario dell'ottimizzazione è in Figura \ref{fig:map_comet_ml} e come si può vedere i risultati migliori si ottengono ponendo $M$ con valori compresi tra $26$ e $30$ e con $N$ uguale a $3$.
+Il target dell'ottimizzatore è la minimizzazione della \ac{map} complessiva moltiplicata per $-1$, in pratica quindi è la massimizzazione della metrica. L'intero processo ha avuto una durata di circa $130$ ore consecutive in quanto l'ambiente è stato impostato per eseguire una fase di training di $7$ epoche seguita da un test per la valutazione delle performance, partendo dai pesi di RetinaNet preaddestrata su \ac{MSCOCO}. Il tutto è stato realizzato sulla parte di dataset di \ac{kmpd} con le annotazioni delle automobili. Un sommario dell'ottimizzazione è in Figura \ref{fig:map_comet_ml} e come si può vedere i risultati migliori si ottengono ponendo $M$ con valori compresi tra $26$ e $30$ e con $N$ uguale a $3$.
 \begin{figure}[]
     \centering
     \includegraphics[width=0.9\textwidth]{images/graphic/mAP_comet.jpeg}
@@ -630,7 +630,8 @@ Partendo dalle immagini catturate dalle telecamere RGB sono state quindi generat
 \end{figure}
 
 Per realizzare questa forma di \textit{data augmentation} è stata utilizzata la parte di dataset di \ac{kmpd} su cui sono state annotate le vetture. Inizialmente si è proceduto con un addestramento di RetinaNet partendo da zero, vale a dire senza effettuare alcun tipo di transfer learning. 
-I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia che le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato. Il risultato in Tabella \ref{tab:result_GAN_scratch} evidenzia come, attraverso un dataset generato da una \ac{GAN}, si ottengono risultati migliori rispetto ad avere solo il termico; considerato che i dataset termici sono molto pochi usare una \ac{GAN} per generare un dataset \textit{falso} è una valida alternativa.
+I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e come si può notare sono molto bassi, questo evidenzia che le tecniche di Data Augmentation vanno applicate a partire da una base solida per eventualmente aumentare le performance di un modello preaddestrato.
+
 \begin{table}[]
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{c|c|c|c|c|c|c|c|c|}
@@ -642,6 +643,9 @@ I risultati ottenuti sono mostrati in Tabella \ref{tab:result_GAN_scratch} e com
     \caption{Risultati del test di RetinaNet sul dataset di \ac{kmpd} dopo una fase di addestramento su dati generati da \ac{GAN}. Nella colonna \textit{NOGAN} sono presenti i risultati ottenuti addestrando solamente sulla parte di \ac{kmpd} visibile e testando sul termico reale.}
     \label{tab:result_GAN_scratch}
 \end{table}
+
+
+Il risultato in Tabella \ref{tab:result_GAN_scratch} evidenzia come, attraverso un dataset generato da una \ac{GAN}, si ottengono risultati migliori rispetto ad avere solo il termico; considerato che i dataset termici sono molto pochi usare una \ac{GAN} per generare un dataset \textit{sintetico} è una valida alternativa.
 
 Dopo questo esperimento il successivo è stato addestrare RetinaNet sulle immagini generate della \ac{GAN} partendo però dai pesi che ci hanno permesso di ottenere i risultati in Tabella \ref{tab:fine_tuning_kaist_flir}. I risultati di questa sperimentazione sono in Figura \ref{fig:fine_tuning_gan}, e come è possibile osservare non si ottiene alcuna miglioria, in nessuna delle classi. 
 \begin{figure}[]
@@ -702,10 +706,10 @@ Questo problema è facilmente risolvibile aumentando la soglia di rilevamento, i
     \label{fig:rfi_080}
 \end{figure}
 
-Rimane però il problòema  della rilevazione dei lavoratori in posizioni non usuali, ad esempio quando sono chinati. In Figura \ref{rfi_080:b} vi è un esempio in quanto l'operaio sembra stia raccogliendo qualcosa per terra e non è stato rilevato. Per risolvere il problema sono stati annotati alcuni frame di quel video per poi effettuare test su altri due video a nostra disposizione. 
+Rimane però il problema  della rilevazione dei lavoratori in posizioni non usuali, ad esempio quando sono chinati. In Figura \ref{rfi_080:b} vi è un esempio in quanto l'operaio sembra stia raccogliendo qualcosa per terra e non è stato rilevato. Per risolvere il problema sono stati annotati alcuni frame di quel video per poi effettuare test su altri due video a nostra disposizione. 
 \subsection{IoU sul tempo}
 \label{sec:iou_over_time}
-Allo scopo di ridurre ulterioremente il numero di falsi positivi all'interno dei video di \ac{RFI} è stato sviluppato un algoritmo che fa uso dell'indice di Jaccard (o \ac{IoU}) per validare le rilevazioni reali ed eliminare quelle fasulle. 
+Allo scopo di ridurre ulteriormente il numero di falsi positivi all'interno dei video di \ac{RFI} è stato sviluppato un algoritmo che fa uso dell'indice di Jaccard (o \ac{IoU}) per validare le rilevazioni reali ed eliminare quelle fasulle. 
 L'algoritmo in questione è in Algoritmo \ref{alg:iou}, mentre l'implementazione in Python è reperibile in Appendice \ref{appendix:a}.
 
 
@@ -744,7 +748,7 @@ L'input dell'algoritmo sono le rilevazioni effettuate su $N$ immagini ed una sog
 Il primo passo effettuato è la ricerca dell'immagine contenente più rilevazioni in quanto è quella intuitivamente più soggetta ad avere qualche \ac{BB} trovata erroneamente durante la fase di inferenza, chiamiamola \textit{max\_detections}. Una volta trovata si inseriscono le detection di tutte le altre immagini all'interno di una struttura che ci permette di effettuare ricerche su coordinate spaziali in maniera efficiente, ovvero un albero R.
 
 Dopodiché, presa l'immagine \textit{max\_detections}, si considerano singolarmente le \ac{BB} e si cercano attraverso l'albero R tutte le \ac{BB} nelle altre immagini che si intersecano alla singola \ac{BB} presa in esame, formando così un \textit{insieme intersezione}. 
-Tramite queste \ac{BB} intersecanti si calcola un valore di \ac{IoU} tra la \ac{BB} presa in esame e tutte quelle nell'\textit{insieme intersezione}. La \ac{IoU} è un valore compreso tra $0$ e $1$, quindi si normalizza usando la cardinalità dell'\textit{insieme intersezione}.
+Tramite queste \ac{BB} intersecanti si calcola un valore di \ac{IoU} tra la \ac{BB} presa in esame e tutte quelle nell'\textit{insieme intersezione}. Siccome la \ac{IoU} dev'essere un valore compreso tra $0$ e $1$, si normalizza usando il numero di frame $N$ in input.
 Dopo questa fase avremo quindi un array di lunghezza pari al numero di \ac{BB} dell'immagine \textit{max\_detections} contenente valori di \ac{IoU}.
 Nell'ultima parte dell'algoritmo si confronta ogni valore di questo array per vedere se è superiore alla soglia $T$ passata in input: se lo è la \ac{BB} corrispondente verrà inserita come detection \textit{valida} per ogni immagine nel batch, altrimenti viene scartata.
 

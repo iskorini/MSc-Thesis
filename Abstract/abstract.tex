@@ -3,8 +3,15 @@
 \usepackage[italian]{babel}
 \usepackage[utf8]{inputenc} 
 \usepackage{hyperref}
+\hypersetup{
+  colorlinks   = true,    % Colours links instead of ugly boxes
+  urlcolor     = blue,    % Colour for external hyperlinks
+  linkcolor    = blue,    % Colour of internal links
+  citecolor    = green      % Colour of citations
+}
 \usepackage[normalem]{ulem}
 \usepackage[font=large, tablename= ]{caption}
+\usepackage[acronym]{glossaries}
 \useunder{\uline}{\ul}{}
 \renewcommand{\baselinestretch}{1.3}
 \setlength{\textwidth}{16 cm}
@@ -16,14 +23,42 @@
 \begin{table}[]
 \centering
 \caption*{Tecniche di apprendimento profondo per riconoscimento di oggetti in video termici}
-\caption*{Deep Learning Techniques for Object Detection in Thermal Videos}
 \begin{tabular}{lll}
 \textbf{Candidato:}   & Federico Schipani & \href{mailto:federico.schipani@stud.unifi.it}{\texttt{federico.schipani@stud.unifi.it}}  \\
 \textbf{Relatore:}    & Marco Bertini  & \href{mailto:marco.bertini@unifi.it}{\texttt{marco.bertini@unifi.it}}                           \\
 \end{tabular}
 \end{table}
 \subsection*{Abstract}
-Il \textit{Machine Learning}, detto anche Apprendimento Automatico, nasce come diramazione dell'intelligenza artificiale e trova  campi di applicazione sempre più ampi nel mondo contemporaneo. Il trend attuale prevede l'utilizzo sempre maggiore di Reti Neurali artificiali, ovvero dei modelli matematici che per molti versi cercano di ricalcare la funzionalità di un cervello umano allo scopo di sostituirlo per quei compiti che possono essere definiti \textit{ripetitivi}. 
+\newacronym{kmpd}{KAIST MPD}{KAIST Multispectral Pedestrian Dataset}
+\newacronym{map}{mAP}{Mean Average Precision}
+\newacronym{GAN}{GAN}{Generative Adversarial Network}
+\newacronym{RFI}{RFI}{Rete Ferroviaria Italiana}
+Il \textit{Machine Learning}, detto anche Apprendimento Automatico, nasce come diramazione dell'intelligenza artificiale e trova campi di applicazione sempre maggiori nel mondo contemporaneo. Il trend attuale prevede l'utilizzo estensivo di Reti Neurali artificiali, ovvero dei modelli matematici che per molti versi cercano di ricalcare la funzionalità di un cervello umano allo scopo di sostituirlo per quei compiti che possono essere definiti \textit{ripetitivi}. 
 
-Lo scopo della tesi è stato migliorare la rilevazione di oggetti all'interno di immagini termiche, per realizzare ciò è stata usata la rete neurale RetinaNet a cui sono state applicate alcune tecniche per ottenere prestazioni sempre maggiori. Dopo una prima fase di analisi e preprocessing dei dataset a nostra disposizione è inizia la fase di sperimentazione dove 
+Scopo di questo lavoro di tesi è stato migliorare la rilevazione di oggetti all'interno di immagini termiche. Per realizzare ciò si è partiti dalla rete neurale RetinaNet a cui sono state applicate alcune tecniche per ottenere prestazioni sempre maggiori. I dataset a nostra disposizione sono il \acrfull{kmpd} ed il dataset di FLIR, su cui sono state considerate solamente le annotazioni riguardanti oggetti come pedoni, ciclisti e veicoli. Dopo un iniziale fase di analisi sono iniziati i primi esperimenti per valutare le performance di detection dove è stato evidenziato come sia possibile ottenere buoni risultati attraverso l'utilizzo di dataset ampi. Successivamente l'interesse è virato sul miglioramento della detection in un sottoinsieme del dataset \acrshort{kmpd} annotato con le automobili.
+
+Nella fase successiva è stata fissata una base di partenza data dall'addestramento di RetinaNet sul dataset di FLIR. Tramite una operazione detta di \textit{fine tuning} è stato raggiunto un incremento complessivo della \acrfull{map} su \acrshort{kmpd} del $25\%$. Sono state usate tecniche di \textit{data augmentation} come \textit{AutoAugment} e \textit{RandAugment} con lo scopo di aumentare la \acrshort{map} ottenendo risultati che migliorano di una percentuale che varia dal $2\%$ al $4\%$.
+
+Sono state utilizzate delle \acrfull{GAN} addestrate per generare un dataset termico sintetico partendo dalle immagini RGB di \acrshort{kmpd}. La serie di esperimenti effettuati tramite l'utilizzo di questo dataset ha evidenziato come un dataset artificiale può aiutare in quelle situazioni critiche in cui si ha una totale mancanza di dati reali su cui effettuare una fase di addestramento.
+
+Infine sono stati condotti esperimenti su video termici girati sul circuito di test di \acrfull{RFI} di San Donato a Bologna valutando le performance di \textit{Transfer Learning}. Non essendo annotati non è stato possibile svolgere un training accurato o calcolare delle metriche; nonostante ciò l'osservazione dei risultati raggiunti mostra come questi siano più che accettabili, grazie anche allo sviluppo di un algoritmo per migliorare la qualità delle rilevazioni basato sull'indice di Jaccard.
+
+\newpage
+\begin{table}[]
+    \centering
+    \caption*{Deep Learning Techniques for Object Detection in Thermal Videos}
+    \begin{tabular}{lll}
+    \textbf{Candidate:}   & Federico Schipani & \href{mailto:federico.schipani@stud.unifi.it}{\texttt{federico.schipani@stud.unifi.it}}  \\
+    \textbf{Supervisor:}    & Marco Bertini  & \href{mailto:marco.bertini@unifi.it}{\texttt{marco.bertini@unifi.it}}                           \\
+    \end{tabular}
+    \end{table}
+    \subsection*{Abstract}
+    Machine Learning was born as a branch of Artificial Intelligence and nowadays it has several increasing fields of applications . The current trend is to heavily rely on Artificial Neural Networks. An Artificial Neural Network is a mathematical model that tries to mimic some functionality of the human brain to replace it in repetitive tasks.
+
+    The objective of this master thesis is to enhance object detections inside thermal images. To do so, we started from the neural network RetinaNet, in which we applied some refinements to obtain better performances. The used datasets are the \acrfull{kmpd} and FLIR, where we only considered the annotations about objects like people, cyclists and cars. After an initial phase of analysis, we started the first experiment to assess the detection performances, where has been highlited the possibility to obatain satifying results through the use of a wide dataset. We moved then our focus on the improvement of the vehicles detection in the \acrshort{kmpd} dataset that has been annotaded with cars.
+
+    Afterwards, it has been fixed a baseline coming from the training of RetinaNet on the FLIR dataset. Through a fine tuning operation, it has been reached a $25\%$ increment of the \acrfull{map} on \acrshort{kmpd}. Data augmentation techniques, such as AutoAugment and RandAument, have been applied to further improve the \acrshort{map}. A small improvement has been registred for the data augmentation, increasing the overall \acrshort{map} by $2-4\%$.
+    Many \acrfull{GAN} have been used, trained to generate a synthetic thermic dataset, beginning from RGB immages of \acrshort{kmpd}. Those series of experiments exposed how such kind of dataset helps in critical situations where real data are missing for the training phase.
+
+    At the end, experiments have been performed on thermic videos, shot on the test circuit of \acrfull{RFI} in San Donato in Bologna to evaluate the Transfer Learning performances. Those videos aren't annotated so has not been possible to have an accurate and specific training or to calculate any kind of metric. However, the achieved results are positive, thanks also to the development of an algorithmn that improves the quality of the detections based on Jaccard index.
 \end{document}
